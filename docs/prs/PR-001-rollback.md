@@ -12,9 +12,12 @@ No feature flags. No data migration rollback required.
 
 1. Clone `feat/pr-001-scaffold` and `cp .env.example .env.local`.
 2. Start PostgreSQL and set `DATABASE_URL` in `.env.local`.
-3. Run `npm install` (or `pnpm install`).
-4. Run `npm run db:migrate` — migration `0000_init_auth` applies cleanly.
-5. Run `npm run db:seed` — one organization and four roles exist.
-6. Run `npm run dev` and open `http://localhost:3000/api/health`.
-7. Expect `{"status":"ok","db":"connected"}`.
-8. Run `npm test`, `npm run lint`, `npm run typecheck`, `npm run build` — all pass.
+3. Export `DATABASE_URL` for Drizzle (see [PR-001-scaffold.md](./PR-001-scaffold.md#local-environment-notes)) — `.env.local` is loaded by Next.js only, not by `db:migrate`.
+4. Run `npm ci` (or `npm install` locally).
+5. Run `npm run db:migrate` — migration `0000_init_auth.sql` applies cleanly.
+6. Run `npm run db:seed` — one organization and four roles exist.
+7. Run `npm run dev` and open `http://localhost:3000/api/health`.
+8. Expect `{"status":"ok","db":"connected"}`.
+9. Run `npm test`, `npm run lint`, `npm run typecheck`, `npm run build` — all pass.
+
+CI runs the same checks in order: `npm ci` → `db:migrate` → `lint` → `typecheck` → `test` → `build`.

@@ -694,7 +694,7 @@ How to revert safely (migration down, feature flag, etc.)
 | **Goal** | Runnable app with Postgres schema migrations and CI |
 | **Scope** | Next.js app, Drizzle, env config, initial migration (users, roles, sessions), Vitest, GitHub Actions lint+test, README |
 | **Must NOT touch** | Business routes, UI pages beyond health check, integrations |
-| **Acceptance test** | `pnpm dev` serves `/api/health`; `pnpm db:migrate` applies cleanly; CI green |
+| **Acceptance test** | `npm run dev` serves `/api/health`; `npm run db:migrate` applies `0000_init_auth.sql`; CI runs `npm ci` → migrate → lint → typecheck → test → build |
 | **Automated tests** | Health route test; migration smoke test |
 | **Rollback** | Revert commit; drop database if first deploy |
 

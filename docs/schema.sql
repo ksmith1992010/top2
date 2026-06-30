@@ -1,5 +1,6 @@
--- T.O.P. CRM v2 — Reference schema (foundation)
--- Source of truth for Drizzle migrations. Apply via drizzle-kit, not manually in prod.
+-- T.O.P. CRM v2 — Reference schema (forward-looking)
+-- NOT applied directly. Each PR ships schema changes via Drizzle migrations in drizzle/.
+-- Use this file for design review and planning only.
 -- Version: 0.2 (product decisions applied)
 
 -- Extensions

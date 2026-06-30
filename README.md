@@ -12,10 +12,14 @@ Clean rebuild of the Over The Top Restoration CRM — roofing and storm-restorat
 cp .env.example .env.local
 # Edit DATABASE_URL
 npm install
+# Drizzle CLI needs DATABASE_URL in the shell or a root .env (not .env.local alone):
+export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/top2
 npm run db:migrate
 npm run db:seed   # optional: default org + roles
 npm run dev
 ```
+
+**Environment notes:** Next.js loads `.env.local` for `npm run dev`. Drizzle commands (`db:migrate`, `db:seed`, `db:generate`) read `DATABASE_URL` from the process environment. CI sets `DATABASE_URL` directly in GitHub Actions.
 
 Health check: `GET http://localhost:3000/api/health`
 
@@ -25,7 +29,7 @@ Health check: `GET http://localhost:3000/api/health`
 |----------|---------|
 | [docs/BLUEPRINT.md](./docs/BLUEPRINT.md) | Stack, data model, API, UI, build sequence, risks |
 | [docs/API.md](./docs/API.md) | API route reference |
-| [docs/schema.sql](./docs/schema.sql) | Reference PostgreSQL schema |
+| [docs/schema.sql](./docs/schema.sql) | Forward-looking reference schema (applied changes ship via Drizzle migrations per PR) |
 | [docs/prs/PR-001-scaffold.md](./docs/prs/PR-001-scaffold.md) | First PR spec |
 | [docs/prs/PR-002-auth.md](./docs/prs/PR-002-auth.md) | Second PR spec |
 | [docs/prs/PR-003-app-shell.md](./docs/prs/PR-003-app-shell.md) | Third PR spec |

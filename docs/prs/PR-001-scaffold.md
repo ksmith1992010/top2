@@ -35,7 +35,7 @@ top2/
 │               ├── roles.ts
 │               └── index.ts
 ├── drizzle/
-│   └── 0001_init_auth.sql      # generated migration
+│   └── 0000_init_auth.sql      # committed migration
 └── tests/
     └── health.test.ts
 ```
@@ -50,27 +50,36 @@ top2/
 
 Better Auth session/account tables ship in **PR-002**.
 
+Applied schema changes come from Drizzle migrations in `drizzle/`. [docs/schema.sql](../schema.sql) is a forward-looking reference only — not applied directly.
+
 ### Scripts
 
 | Script | Purpose |
 |--------|---------|
-| `pnpm dev` | Local dev server |
-| `pnpm build` | Production build |
-| `pnpm test` | Vitest |
-| `pnpm lint` | ESLint |
-| `pnpm db:generate` | Drizzle migration generate |
-| `pnpm db:migrate` | Apply migrations |
-| `pnpm db:seed` | Seed roles (admin, sales, production, accounting) |
+| `npm run dev` | Local dev server |
+| `npm run build` | Production build |
+| `npm test` | Vitest |
+| `npm run lint` | ESLint |
+| `npm run db:generate` | Drizzle migration generate |
+| `npm run db:migrate` | Apply migrations |
+| `npm run db:seed` | Seed roles (admin, sales, production, accounting) |
+
+### Local environment notes
+
+- **Next.js** (`npm run dev`) loads `.env.local` automatically.
+- **Drizzle CLI** (`npm run db:migrate`, `npm run db:seed`, `npm run db:generate`) reads `DATABASE_URL` from the shell environment. Either export it, copy vars to a root `.env` file, or run migrate with `DATABASE_URL` set inline. `.env.local` alone is not enough for Drizzle commands.
+- **CI** sets `DATABASE_URL` directly in the workflow.
 
 ### CI
 
 On push/PR to `main`:
 
-1. Install deps (`pnpm install --frozen-lockfile`)
-2. Lint
-3. Typecheck
-4. Test
-5. Build
+1. `npm ci`
+2. `npm run db:migrate`
+3. `npm run lint`
+4. `npm run typecheck`
+5. `npm run test`
+6. `npm run build`
 
 ## Must NOT touch
 
@@ -83,24 +92,27 @@ On push/PR to `main`:
 ## Acceptance test
 
 1. Clone repo, copy `.env.example` → `.env.local`, set `DATABASE_URL`
-2. Run `pnpm install && pnpm db:migrate && pnpm dev`
-3. `GET http://localhost:3000/api/health` returns `{ "status": "ok", "db": "connected" }`
-4. `pnpm test` passes
-5. CI green on PR
+2. Export `DATABASE_URL` (or use a root `.env`) and run `npm install && npm run db:migrate`
+3. Run `npm run dev`
+4. `GET http://localhost:3000/api/health` returns `{ "status": "ok", "db": "connected" }`
+5. `npm test` passes
+6. CI green on PR (same command sequence as above, starting with `npm ci`)
 
 ## Automated tests
 
 - `health.test.ts`: health route returns 200
-- Optional: migration applies on empty Postgres (docker-compose in CI or testcontainers)
+- CI runs `npm run db:migrate` against Postgres 16 before lint/test/build
 
 ## Rollback
 
 - Revert merge commit
 - If deployed: drop database (greenfield; no production data yet)
 
+See also [PR-001-rollback.md](./PR-001-rollback.md).
+
 ## Review checklist
 
 - [ ] No business domain code
-- [ ] Drizzle schema matches [schema.sql](./schema.sql) auth section
+- [ ] Drizzle schema and `drizzle/0000_init_auth.sql` match for auth tables
 - [ ] `.env.example` documents all required vars
 - [ ] No secrets committed
