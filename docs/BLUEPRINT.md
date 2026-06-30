@@ -1,6 +1,6 @@
 # T.O.P. CRM v2 — Engineering Blueprint
 
-**Version:** 0.1 (foundation design)  
+**Version:** 0.2 (foundation design + product decisions)  
 **Repo:** [ksmith1992010/top2](https://github.com/ksmith1992010/top2)  
 **Scope:** Design only. No integrations. No v1 code reuse.
 
@@ -44,6 +44,22 @@ Foundation first: auth, roles, core schema, job CRUD, status transitions, activi
 - Serverless functions outside Next.js (until needed)
 - Third-party CRM SDKs in core domain logic
 - Real-time websockets (polling/SWR is enough for v1)
+- PWA / offline mode (mobile-first responsive web only for foundation)
+- v1 data migration (clean foundation first; migration doc later)
+
+### Product decisions (locked)
+
+| Topic | Decision |
+|-------|----------|
+| **Job numbers** | Human-readable `TOP-YYYY-####` (e.g. `TOP-2026-0042`). UUID is the internal PK. Users search/display by job number. |
+| **Status skipping** | Allowed only via `POST /jobs/:id/transition`. Skipped stages require a `reason`; logged on `activity_events` with `{ from, to, skippedStages, reason }`. |
+| **Retail / cash jobs** | Supported. Insurance stages (`claim_filed` … `approved`) are optional — e.g. `inspection_complete → contract_signed` with reason. |
+| **Job assignment** | `job_participants` table with roles: `sales_owner`, `knocker`, `production_manager`, `office_admin` (`subcontractor` later). No long-term reliance on a single `assigned_to` column. |
+| **Claims** | One **primary** claim per job (`is_primary = true`). Supplements deferred; schema must not block multiple claims per job later. |
+| **v1 migration** | Out of scope until foundation ships. |
+| **PWA / offline** | Not in foundation. Web-only, mobile-first UI. |
+| **File storage** | Provider-neutral `storage_key` on photos/documents. No storage implementation until dedicated PR. |
+| **Multi-company** | Single company operationally. `organization_id` on tenant-scoped tables for a clean future without building multi-tenant UX now. |
 
 ### Future integration pattern (not built yet)
 
@@ -69,8 +85,10 @@ Adapters never write directly to tables. They call the same commands the UI uses
 ### Entity relationship overview
 
 ```
+organizations
 users ──< user_roles >── roles ──< role_permissions
-customers ──< properties ──< jobs ──┬──< claims
+customers ──< properties ──< jobs ──┬──< job_participants >── users
+                                    ├──< claims
                                     ├──< appointments
                                     ├──< job_events (KU, CI, etc.)
                                     ├──< tasks
@@ -84,11 +102,22 @@ customers ──< properties ──< jobs ──┬──< claims
 
 ### Tables
 
+#### `organizations`
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| name | text NOT NULL | e.g. Over The Top Restoration |
+| created_at, updated_at | timestamptz | |
+
+Foundation seeds one organization. All tenant-scoped rows reference `organization_id`.
+
 #### `users`
 
 | Column | Type | Notes |
 |--------|------|-------|
 | id | uuid PK | |
+| organization_id | uuid FK → organizations NOT NULL | |
 | email | text UNIQUE NOT NULL | |
 | name | text NOT NULL | |
 | phone | text | |
@@ -155,25 +184,47 @@ Central entity. Status lives here and only changes via transition commands.
 
 | Column | Type | Notes |
 |--------|------|-------|
-| id | uuid PK | |
+| id | uuid PK | internal identifier |
 | property_id | uuid FK → properties NOT NULL | |
-| job_number | text UNIQUE NOT NULL | human-readable, server-generated |
+| organization_id | uuid FK → organizations NOT NULL | |
+| job_number | text UNIQUE NOT NULL | `TOP-YYYY-####`, server-generated, user-facing |
 | status | job_status enum NOT NULL | see lifecycle below |
+| job_type | job_type enum NOT NULL DEFAULT `insurance` | `insurance` or `retail` — controls allowed skip paths |
 | lead_source | text | door_knock, referral, storm_list, etc. |
-| assigned_to | uuid FK → users | primary rep |
 | storm_date | date | |
-| insurance_carrier | text | denormalized for list views; claim is SoT |
 | notes | text | |
 | closed_at | timestamptz | set when status → closed |
 | created_by, updated_by | uuid | |
 | deleted_at | timestamptz | |
 | created_at, updated_at | timestamptz | |
 
+**`job_type` enum:** `insurance` | `retail`
+
 **`job_status` enum:**
 
 `lead` | `inspection_scheduled` | `inspection_complete` | `claim_filed` | `adjuster_meeting_scheduled` | `approved` | `contract_signed` | `material_ordered` | `production_scheduled` | `installed` | `invoiced` | `paid` | `closed`
 
-**Indexes:** `(status)`, `(assigned_to)`, `(property_id)`, `(created_at DESC)`, `(job_number)`
+**Indexes:** `(organization_id, status)`, `(property_id)`, `(created_at DESC)`, `(job_number)` — job number is the primary user search key
+
+#### `job_participants`
+
+Replaces a single `assigned_to` field. Multiple users per job with explicit roles.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| job_id | uuid FK → jobs NOT NULL | |
+| user_id | uuid FK → users NOT NULL | |
+| role | job_participant_role enum NOT NULL | see below |
+| assigned_at | timestamptz NOT NULL DEFAULT now() | |
+| assigned_by | uuid FK → users | |
+| removed_at | timestamptz | soft unassign |
+
+**`job_participant_role` enum:** `sales_owner` | `knocker` | `production_manager` | `office_admin` (`subcontractor` added later)
+
+**Unique (active):** `(job_id, role)` WHERE `removed_at IS NULL` — one active holder per role per job
+
+**Indexes:** `(job_id)`, `(user_id)`
 
 #### `job_events`
 
@@ -198,7 +249,8 @@ KU, CI, and other reportable milestones. **Not** a substitute for status.
 | Column | Type | Notes |
 |--------|------|-------|
 | id | uuid PK | |
-| job_id | uuid FK → jobs UNIQUE NOT NULL | one active claim per job in v2 |
+| job_id | uuid FK → jobs NOT NULL | multiple rows per job later (supplements) |
+| is_primary | boolean NOT NULL DEFAULT true | exactly one primary claim per job |
 | claim_number | text | |
 | carrier | text NOT NULL | |
 | policy_number | text | |
@@ -210,6 +262,8 @@ KU, CI, and other reportable milestones. **Not** a substitute for status.
 | notes | text | |
 | created_by, updated_by | uuid | |
 | created_at, updated_at | timestamptz | |
+
+**Partial unique:** `(job_id)` WHERE `is_primary = true`
 
 #### `appointments`
 
@@ -249,7 +303,7 @@ KU, CI, and other reportable milestones. **Not** a substitute for status.
 |--------|------|-------|
 | id | uuid PK | |
 | job_id | uuid FK → jobs NOT NULL | |
-| storage_key | text NOT NULL | S3/R2 path; upload flow in later PR |
+| storage_key | text NOT NULL | provider-neutral path/key; storage adapter in later PR |
 | caption | text | |
 | taken_at | timestamptz | |
 | uploaded_by | uuid FK → users | |
@@ -262,7 +316,7 @@ KU, CI, and other reportable milestones. **Not** a substitute for status.
 | id | uuid PK | |
 | job_id | uuid FK → jobs NOT NULL | |
 | doc_type | document_type enum | `contract`, `estimate`, `invoice`, `insurance`, `other` |
-| storage_key | text NOT NULL | |
+| storage_key | text NOT NULL | provider-neutral path/key; storage adapter in later PR |
 | filename | text NOT NULL | |
 | uploaded_by | uuid | |
 | created_at | timestamptz | |
@@ -360,7 +414,7 @@ Production scheduling and install tracking — separate from job lifecycle statu
 
 - `jobs.property_id` NOT NULL
 - `job_events`: UNIQUE `(job_id, event_type)` for KU/CI
-- `claims.job_id` UNIQUE (one claim per job in foundation)
+- `claims`: partial unique `(job_id) WHERE is_primary = true`
 - `payments.amount_cents` > 0
 - `invoices.total_cents` >= sum of payments (enforced in application layer + DB trigger optional in later PR)
 
@@ -377,6 +431,7 @@ Production scheduling and install tracking — separate from job lifecycle statu
 | **Invoice status** | `invoices.status` | `POST /api/invoices`, `POST .../send`, `POST .../void`; payment commands update status | Timeline per action: created, sent, voided |
 | **Payment status** | `payments` rows + derived `invoices.status` | `POST /api/invoices/:id/payments` only | Timeline; recalculates invoice status in same transaction |
 | **Production status** | `production_records.status` | `PATCH /api/jobs/:id/production` | Timeline; job status moves to `production_scheduled` / `installed` via **separate** transition command |
+| **Job assignment** | `job_participants` | `POST /api/jobs/:id/participants`, `DELETE .../participants/:id` | Timeline on assign/unassign |
 | **User permissions** | `roles` + `role_permissions` + `user_roles` | `POST/PATCH /api/admin/roles`, assign via settings | No business timeline |
 | **Customer communication history** | `activity_events` where `event_type` LIKE `communication.%` | Manual log: `POST /api/jobs/:id/communications` (foundation: manual notes only) | Integrations later append same event type |
 | **Activity timeline** | `activity_events` | Written inside every mutation command — never by UI directly | Read via `GET /api/jobs/:id/timeline` |
@@ -426,7 +481,9 @@ Base: `/api/v1`. JSON only. All mutations require auth. Responses: `{ data }` or
 | GET | `/jobs/:id/timeline` | Activity feed |
 | POST | `/jobs/:id/communications` | Manual comm log (foundation) |
 
-**Transition body:** `{ "to_status": "inspection_scheduled", "reason": "optional" }`
+**Transition body:** `{ "toStatus": "inspection_scheduled", "reason": "required when skipping stages" }`
+
+When `toStatus` skips one or more intermediate stages, `reason` is **required**. The command logs `activity_events` with `{ from, to, skippedStages[], reason }`.
 
 Server validates allowed transitions (config table or state machine module — one file).
 
@@ -637,7 +694,7 @@ How to revert safely (migration down, feature flag, etc.)
 | **Goal** | Runnable app with Postgres schema migrations and CI |
 | **Scope** | Next.js app, Drizzle, env config, initial migration (users, roles, sessions), Vitest, GitHub Actions lint+test, README |
 | **Must NOT touch** | Business routes, UI pages beyond health check, integrations |
-| **Acceptance test** | `pnpm dev` serves `/api/health`; `pnpm db:migrate` applies cleanly; CI green |
+| **Acceptance test** | `npm run dev` serves `/api/health`; `npm run db:migrate` applies `0000_init_auth.sql`; CI runs `npm ci` → migrate → lint → typecheck → test → build |
 | **Automated tests** | Health route test; migration smoke test |
 | **Rollback** | Revert commit; drop database if first deploy |
 
@@ -677,22 +734,24 @@ How to revert safely (migration down, feature flag, etc.)
 | Scope creep from integrations | Adapter boundary documented; integration PRs blocked until Phase 3 complete |
 | AI-generated helper sprawl | AGENTS.md rules; max one new file per PR unless deleting another |
 
-### Open questions
+### Resolved decisions
 
-1. **Job numbers:** Format preference? (`TOP-2026-0001` vs sequential only)
-2. **Multi-claim jobs:** Can one job have supplement claims later? (Schema allows extension; v2 starts 1:1)
-3. **Status skipping:** Can reps skip stages (e.g. cash job with no claim)? Need `transition` rules per job type?
-4. **Rep assignment:** Single `assigned_to` or split sales/production roles on job?
-5. **Data migration from v1:** Out of scope for foundation; need export mapping doc later?
-6. **Offline/mobile native:** Web-only for v2 foundation, or PWA requirement?
-7. **File storage:** Cloudflare R2 vs S3 — decide before PR 17
-8. **Tenant model:** Single company (Over The Top) only, or multi-tenant later?
+See [Product decisions (locked)](#product-decisions-locked) above.
+
+### Remaining open questions
+
+1. **Job number sequence:** Per-organization counter table vs. `MAX(job_number)` per year?
+2. **Supplement claims:** Add `parent_claim_id` when supplements ship, or rely on `is_primary` only?
+3. **Subcontractor role:** Permissions model when external users are added?
+4. **v1 export mapping:** Field mapping doc when migration phase starts
 
 ---
 
-## Appendix: allowed job transitions (draft)
+## Appendix: job transitions
 
-Initial strict linear flow with limited skips:
+All status changes go through `TransitionJobCommand` in `src/domain/job-transitions.ts` (single file).
+
+### Default forward path (insurance jobs)
 
 ```
 lead → inspection_scheduled → inspection_complete → claim_filed
@@ -701,6 +760,26 @@ lead → inspection_scheduled → inspection_complete → claim_filed
   → invoiced → paid → closed
 ```
 
-**Cash / no-insurance path (TBD):** `inspection_complete → contract_signed` with reason code logged on transition.
+### Retail / cash jobs
 
-**Backward transitions:** Admin only; always logged with reason.
+Insurance stages are **optional**. Example path:
+
+```
+lead → inspection_scheduled → inspection_complete → contract_signed → … → closed
+```
+
+Skip from `inspection_complete` to `contract_signed` requires `reason` (e.g. `"retail_cash_job"`).
+
+### Skipping stages
+
+- Any transition that skips intermediate stages requires a non-empty `reason`.
+- Skipped stages are recorded in `activity_events.payload.skippedStages`.
+- No silent auto-advance from KU/CI events.
+
+### Backward transitions
+
+Admin permission only (`jobs:transition:admin`). Always requires `reason`.
+
+### Job numbers
+
+Generated on job create: `TOP-{YYYY}-{####}` zero-padded sequence per calendar year per organization.

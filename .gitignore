@@ -15,6 +15,8 @@ out/
 coverage/
 playwright-report/
 test-results/
+tsconfig.tsbuildinfo
+.next/
 
 # IDE
 .idea/
@@ -25,8 +27,8 @@ test-results/
 .DS_Store
 Thumbs.db
 
-# Drizzle
-drizzle/meta/
+# Drizzle (keep migration journal; ignore generated snapshots)
+drizzle/meta/*_snapshot.json
 
 # Debug
 *.log

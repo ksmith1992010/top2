@@ -49,11 +49,13 @@ Activity: `customer.created`
 
 | Method | Path | Permission | Notes |
 |--------|------|------------|-------|
-| GET | `/jobs?status=&assignedTo=` | `jobs:read` | List |
-| POST | `/jobs` | `jobs:create` | Creates with `status=lead` |
-| GET | `/jobs/:id` | `jobs:read` | Detail + related summaries |
-| PATCH | `/jobs/:id` | `jobs:update` | assignee, notes, leadSource — **not status** |
+| GET | `/jobs?status=&participant=` | `jobs:read` | List; filter by participant user/role |
+| POST | `/jobs` | `jobs:create` | Creates with `status=lead`; generates `TOP-YYYY-####` |
+| GET | `/jobs/:id` | `jobs:read` | Detail; lookup by UUID or job number |
+| PATCH | `/jobs/:id` | `jobs:update` | notes, leadSource, jobType — **not status** |
 | POST | `/jobs/:id/transition` | `jobs:transition` | **Only status changes** |
+| POST | `/jobs/:id/participants` | `jobs:update` | Assign participant role |
+| DELETE | `/jobs/:id/participants/:participantId` | `jobs:update` | Unassign (soft) |
 | POST | `/jobs/:id/events` | `job_events:create` | KU, CI |
 | GET | `/jobs/:id/timeline` | `jobs:read` | Activity feed |
 | POST | `/jobs/:id/communications` | `jobs:update` | Manual comm log |
@@ -61,13 +63,23 @@ Activity: `customer.created`
 **POST /jobs**
 
 ```json
-{ "propertyId": "uuid", "leadSource": "door_knock", "assignedTo": "uuid" }
+{ "propertyId": "uuid", "jobType": "insurance", "leadSource": "door_knock" }
 ```
+
+Participants are assigned via `POST /jobs/:id/participants`, not on job create.
 
 **POST /jobs/:id/transition**
 
 ```json
-{ "toStatus": "inspection_scheduled", "reason": "optional" }
+{ "toStatus": "contract_signed", "reason": "retail_cash_job — skipping claim stages" }
+```
+
+`reason` is **required** when skipping intermediate stages. Logs `skippedStages` on the activity timeline.
+
+**POST /jobs/:id/participants**
+
+```json
+{ "userId": "uuid", "role": "sales_owner" }
 ```
 
 Activity: `job.status_changed` with `{ from, to, reason }`
