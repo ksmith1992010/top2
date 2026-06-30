@@ -1,6 +1,8 @@
 # Code Redundancy and Data Preservation Checklist
 
-Mandatory for **every PR** in T.O.P. CRM v2.
+Mandatory for **every PR** in T.O.P. CRM v2 — **tiered** so low-risk PRs stay lightweight.
+
+Related: [AGENTS.md](../../AGENTS.md), [BLUEPRINT.md](../BLUEPRINT.md)
 
 ---
 
@@ -8,20 +10,57 @@ Mandatory for **every PR** in T.O.P. CRM v2.
 
 T.O.P. CRM v2 is a clean rebuild partly to escape AI-generated patch bloat and data-risky architecture from v1.
 
-This checklist ensures each PR is reviewed for:
+Every PR must consider redundancy and data safety. **Routine PRs use a short block only.** The full checklist below is required when the PR touches risky areas.
 
-- **Code redundancy** — duplicate logic, mutation paths, and unnecessary layers
-- **Data preservation** — safe migrations and no accidental loss of business records
+**Do not paste the full checklist into every PR by default.**
 
-Agents and humans must complete both audits before marking a PR ready for review or merging.
-
-Related: [AGENTS.md](../../AGENTS.md), [BLUEPRINT.md](../BLUEPRINT.md)
+- Use the **short block** for routine PRs.
+- **Link to this doc** and complete the full checklist when applicable.
+- Any **Yes** answer or **Medium/High** risk level must include an explanation.
 
 ---
 
-## 2. Redundancy checklist
+## 2. Short block (every PR)
 
-Copy into PR review or use as a mental audit before opening a PR.
+Paste into **every** PR description:
+
+```md
+## Redundancy / data safety
+
+- Duplicate mutation paths introduced: No / Yes
+- Existing data or migrations touched: No / Yes
+- Risk level: Low / Medium / High
+- Notes:
+```
+
+### Low-risk PRs (short block only)
+
+If **all** of the following are true, the short block is enough:
+
+- Docs-only, style-only, copy-only, or test-only (no production behavior change)
+- **Existing data or migrations touched: No**
+- **Risk level: Low**
+
+Examples: README, ADR, AGENTS.md, comment fixes, pure test additions that do not change schema or commands.
+
+### When full checklist is required
+
+Complete **sections 3 and 4** below (and link this doc in the PR) when the PR touches **any** of:
+
+- Database schema or Drizzle migrations
+- API routes or domain command modules
+- Auth / permissions
+- Customer, property, job, claim, invoice, payment, photo, document, user, or activity data
+- File / photo / document storage
+- Imports, backfills, or seeds that write data
+- Deletes, renames, or status changes
+- Integrations that write data
+
+Set **Risk level: Medium** for additive schema/API/command changes. Set **High** for destructive migrations, backfills, deletes, or financial/audit data changes.
+
+---
+
+## 3. Redundancy checklist (medium/high-risk PRs)
 
 - [ ] **No duplicate mutation path** — one command/API route per business action
 - [ ] **No duplicate business rule** — same validation not copy-pasted across files
@@ -36,57 +75,51 @@ Copy into PR review or use as a mental audit before opening a PR.
 
 ---
 
-## 3. Data preservation checklist
-
-Required for any PR touching schema, migrations, seeds, or business mutations.
+## 4. Data preservation checklist (medium/high-risk PRs)
 
 - [ ] **No destructive migration** — no drops/renames without explicit approval
 - [ ] **No unreviewed table/column drops**
 - [ ] **No unsafe enum changes** — removed/changed enum values need migration plan
-- [ ] **No unsafe nullable/not-null changes** — existing rows considered
+- [ ] **No unsafe nullable/not-null changes** — existing rows considered; backfill/default/two-step plan documented
 - [ ] **No data overwrite without backup/plan** — backfills documented
 - [ ] **No orphaned records** — FKs and cascades reviewed
 - [ ] **Rollback path documented** — in PR description or rollback doc
-- [ ] **Backfill plan documented if needed** — two-step migration when required
+- [ ] **Backfill plan documented if needed** — expand → backfill → contract pattern
 - [ ] **Customer/job/document/payment data preserved** — core entities not at risk
 - [ ] **Activity/audit trail preserved where applicable** — `activity_events` append-only; no silent deletes
 
 ---
 
-## 4. PR template block
+## 5. Standing protections (always apply)
 
-Paste into every PR description:
+These apply to **all** PRs that touch code or schema — not only when the full checklist is pasted:
 
-```md
-## Redundancy audit
-- Duplicate mutation paths introduced: No / Yes
-- Duplicate business logic introduced: No / Yes
-- Existing source of truth reused: Yes / No
-- New helpers/modules added: No / Yes — reason:
-- Dead/unused code removed or left alone:
-
-## Data preservation audit
-- Migration included: No / Yes
-- Destructive migration: No / Yes
-- Data backfill needed: No / Yes
-- Rollback plan included: No / Yes
-- Existing business records at risk: No / Yes — explain:
-- Activity/audit trail preserved: N/A / Yes / No
-```
+| Rule | Detail |
+|------|--------|
+| One mutation path | No duplicate API routes or commands updating the same entity |
+| No client DB writes | Browser calls API routes only |
+| No hard deletes of business data | Soft delete or void; financial/audit records append-only |
+| Additive migrations first | Expand → backfill → contract; destructive changes in a later PR |
+| Never edit committed migrations | New migration file instead |
+| NOT NULL changes | Require backfill, default, or two-step plan |
+| Risky data changes | Rollback plan required |
 
 ---
 
-## 5. Merge rule
+## 6. Merge rule
 
-A PR must **not** be marked ready to merge until both audits are completed.
+A PR must **not** be marked ready to merge until:
 
-Any **Yes** on a risky item (duplicate paths, destructive migration, records at risk) must include a clear explanation and explicit approval in the PR thread.
+1. The **short block** is present, and
+2. The **full checklist** is completed when the PR touches any risky area (section 2).
+
+Any **Yes** or **Medium/High** risk without explanation blocks merge until clarified.
 
 When in doubt, split the PR or ask before merging.
 
 ---
 
-## 6. Anti-AI-patch-bloat reminder
+## 7. Anti-AI-patch-bloat reminder
 
 Do not fix bugs by layering fallback logic unless:
 

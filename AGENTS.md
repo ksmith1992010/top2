@@ -130,58 +130,51 @@ See also [docs/checklists/code-redundancy-data-preservation.md](./docs/checklist
 
 ---
 
-## Redundancy Audit Rule
+## Redundancy and data safety (tiered)
 
-Before opening or merging any PR, the agent must audit whether the change introduces:
+Every PR must include the **short block** below. The [full checklist](./docs/checklists/code-redundancy-data-preservation.md) is required only when the PR touches schema, migrations, API routes, domain commands, auth, business data, storage, backfills, deletes, or integrations that write data.
 
-- Duplicate business logic
-- Duplicate API routes that update the same entity
-- Duplicate database access paths
-- Duplicate validation schemas
-- Duplicate permission checks
-- Duplicate status transition logic
-- Duplicate timeline/activity logging logic
-- Generic helpers that hide business rules
-- Fallback paths that patch around root causes
-- Compatibility layers without a written reason
-- Unused files, unused imports, dead functions, or stale code
+**Short block (paste into every PR):**
 
-**Required behavior:**
+```md
+## Redundancy / data safety
 
-- Prefer fixing the existing source of truth over adding a second pathway.
-- Prefer deleting or consolidating over layering new helpers.
-- If a new helper/module is added, explain why existing code could not be reused.
-- If duplicate logic is intentionally kept temporarily, add a TODO with owner, reason, and removal trigger.
-- Every PR summary must include a **Redundancy audit** section (template in checklist doc).
+- Duplicate mutation paths introduced: No / Yes
+- Existing data or migrations touched: No / Yes
+- Risk level: Low / Medium / High
+- Notes:
+```
 
----
+**Low-risk PRs** (docs-only, style, copy, test-only with no schema/command changes): short block is enough when **Existing data or migrations touched: No** and **Risk level: Low**.
 
-## Data Preservation Rule
+**Medium/high-risk PRs:** complete the full checklist in the doc and link it. Any **Yes** or **Medium/High** must include an explanation.
 
-Before opening or merging any PR, the agent must audit whether the change could affect existing or future production data.
+Do **not** paste the full checklist into every PR by default.
 
-**The agent must check:**
+### Standing protections (always)
 
-- Does this migration drop a table, column, enum value, index, constraint, or relationship?
-- Does this migration rename anything?
-- Does this migration change nullability?
-- Does this migration change default values?
-- Does this migration change enum values or allowed statuses?
-- Does this code delete, overwrite, or backfill records?
-- Could this strand related records?
-- Could this break customer, property, job, claim, invoice, payment, document, photo, user, role, or activity timeline data?
-- Is rollback possible?
-- Is a backup/export needed before applying this?
-- Is a two-step migration safer?
+- No duplicate mutation paths; no direct client-side DB writes
+- No hard deletes of business data; financial/audit records append-only
+- Additive / expand-contract migrations; never edit committed migrations
+- NOT NULL changes need backfill, default, or two-step plan
+- Risky data changes require a rollback plan
 
-**Required behavior:**
+### Redundancy audit (when full checklist applies)
 
-- Destructive migrations are forbidden unless explicitly approved in the PR.
-- Prefer additive migrations first, then backfill, then cleanup in a later PR.
-- Any destructive or risky data change must have a rollback plan.
-- Any migration affecting business records must describe preservation strategy.
-- Every mutation touching business data must preserve an activity/audit trail once the domain layer exists.
-- Every PR summary must include a **Data preservation audit** section (template in checklist doc).
+Before merging risky PRs, confirm the change does not introduce:
+
+- Duplicate business logic, API routes, DB paths, validation schemas, or permission checks
+- Duplicate status transition or timeline/activity logging logic
+- Generic helpers hiding business rules, fallback paths, or compatibility layers without reason
+- Unused files, imports, dead functions, or stale code
+
+**Required behavior:** Prefer fixing the existing source of truth. Prefer delete/consolidate over new helpers. New helpers need justification. Temporary duplication needs a TODO with owner and removal trigger.
+
+### Data preservation audit (when full checklist applies)
+
+Confirm whether the change could affect production data: drops, renames, nullability, defaults, enum/status changes, deletes, overwrites, backfills, orphaned records, or broken customer/job/claim/invoice/payment/document/photo/user/activity data.
+
+**Required behavior:** Destructive migrations forbidden unless explicitly approved. Additive first, then backfill, then cleanup in a later PR. Mutations touching business data must preserve activity/audit trail once the domain layer exists.
 
 ---
 
@@ -195,8 +188,8 @@ Before opening or merging any PR, the agent must audit whether the change could 
 - [ ] Tests added
 - [ ] Rollback note in PR
 - [ ] Did not touch unrelated files
-- [ ] Redundancy audit completed ([checklist](./docs/checklists/code-redundancy-data-preservation.md))
-- [ ] Data preservation audit completed ([checklist](./docs/checklists/code-redundancy-data-preservation.md))
+- [ ] Redundancy / data safety short block in PR ([checklist](./docs/checklists/code-redundancy-data-preservation.md))
+- [ ] Full redundancy/data checklist completed if PR touches risky areas
 
 ---
 
