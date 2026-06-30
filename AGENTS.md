@@ -126,6 +126,63 @@ These rules exist because v1 accumulated AI-generated layers. Do not repeat that
 9. **Prefer deleting** over adding compatibility shims
 10. **If unsure, read BLUEPRINT** — do not invent architecture
 
+See also [docs/checklists/code-redundancy-data-preservation.md](./docs/checklists/code-redundancy-data-preservation.md).
+
+---
+
+## Redundancy Audit Rule
+
+Before opening or merging any PR, the agent must audit whether the change introduces:
+
+- Duplicate business logic
+- Duplicate API routes that update the same entity
+- Duplicate database access paths
+- Duplicate validation schemas
+- Duplicate permission checks
+- Duplicate status transition logic
+- Duplicate timeline/activity logging logic
+- Generic helpers that hide business rules
+- Fallback paths that patch around root causes
+- Compatibility layers without a written reason
+- Unused files, unused imports, dead functions, or stale code
+
+**Required behavior:**
+
+- Prefer fixing the existing source of truth over adding a second pathway.
+- Prefer deleting or consolidating over layering new helpers.
+- If a new helper/module is added, explain why existing code could not be reused.
+- If duplicate logic is intentionally kept temporarily, add a TODO with owner, reason, and removal trigger.
+- Every PR summary must include a **Redundancy audit** section (template in checklist doc).
+
+---
+
+## Data Preservation Rule
+
+Before opening or merging any PR, the agent must audit whether the change could affect existing or future production data.
+
+**The agent must check:**
+
+- Does this migration drop a table, column, enum value, index, constraint, or relationship?
+- Does this migration rename anything?
+- Does this migration change nullability?
+- Does this migration change default values?
+- Does this migration change enum values or allowed statuses?
+- Does this code delete, overwrite, or backfill records?
+- Could this strand related records?
+- Could this break customer, property, job, claim, invoice, payment, document, photo, user, role, or activity timeline data?
+- Is rollback possible?
+- Is a backup/export needed before applying this?
+- Is a two-step migration safer?
+
+**Required behavior:**
+
+- Destructive migrations are forbidden unless explicitly approved in the PR.
+- Prefer additive migrations first, then backfill, then cleanup in a later PR.
+- Any destructive or risky data change must have a rollback plan.
+- Any migration affecting business records must describe preservation strategy.
+- Every mutation touching business data must preserve an activity/audit trail once the domain layer exists.
+- Every PR summary must include a **Data preservation audit** section (template in checklist doc).
+
 ---
 
 ## PR checklist (copy into every PR description)
@@ -138,6 +195,8 @@ These rules exist because v1 accumulated AI-generated layers. Do not repeat that
 - [ ] Tests added
 - [ ] Rollback note in PR
 - [ ] Did not touch unrelated files
+- [ ] Redundancy audit completed ([checklist](./docs/checklists/code-redundancy-data-preservation.md))
+- [ ] Data preservation audit completed ([checklist](./docs/checklists/code-redundancy-data-preservation.md))
 
 ---
 
