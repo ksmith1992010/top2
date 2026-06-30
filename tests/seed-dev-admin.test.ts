@@ -3,6 +3,8 @@ import {
   DEV_ADMIN_EMAIL,
   DEV_ADMIN_PASSWORD,
   isDevAdminSeedAllowed,
+  isProductionSeedContext,
+  resolveDevAdminPassword,
 } from "@/lib/db/seed-dev-admin";
 
 describe("isDevAdminSeedAllowed", () => {
@@ -35,6 +37,68 @@ describe("isDevAdminSeedAllowed", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("VERCEL_ENV", "preview");
     expect(isDevAdminSeedAllowed({ NODE_ENV: "production" })).toBe(true);
+  });
+});
+
+describe("isProductionSeedContext", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("is false in development", () => {
+    expect(isProductionSeedContext({ NODE_ENV: "development" })).toBe(false);
+  });
+
+  it("is false on Vercel preview even when NODE_ENV=production", () => {
+    vi.stubEnv("VERCEL_ENV", "preview");
+    expect(isProductionSeedContext({ NODE_ENV: "production" })).toBe(false);
+  });
+
+  it("is true for production deploys", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    expect(isProductionSeedContext({ NODE_ENV: "production" })).toBe(true);
+  });
+});
+
+describe("resolveDevAdminPassword", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("uses documented default in development", () => {
+    expect(resolveDevAdminPassword({ NODE_ENV: "development" })).toBe(DEV_ADMIN_PASSWORD);
+  });
+
+  it("uses documented default on Vercel preview", () => {
+    vi.stubEnv("VERCEL_ENV", "preview");
+    expect(resolveDevAdminPassword({ NODE_ENV: "production" })).toBe(DEV_ADMIN_PASSWORD);
+  });
+
+  it("requires SEED_ADMIN_PASSWORD in production", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    expect(() => resolveDevAdminPassword({ NODE_ENV: "production" })).toThrow(
+      /SEED_ADMIN_PASSWORD is required/,
+    );
+  });
+
+  it("rejects the default password in production", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    expect(() =>
+      resolveDevAdminPassword({
+        NODE_ENV: "production",
+        SEED_ADMIN_PASSWORD: DEV_ADMIN_PASSWORD,
+      }),
+    ).toThrow(/default dev password cannot be used in production/);
+  });
+
+  it("allows explicit production password", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    expect(
+      resolveDevAdminPassword({
+        NODE_ENV: "production",
+        SEED_ADMIN_PASSWORD: "operator-set-production-password",
+      }),
+    ).toBe("operator-set-production-password");
   });
 });
 

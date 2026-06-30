@@ -6,8 +6,8 @@ import { getServerEnv } from "@/lib/env";
 import {
   DEV_ADMIN_EMAIL,
   DEV_ADMIN_NAME,
-  DEV_ADMIN_PASSWORD,
   isDevAdminSeedAllowed,
+  resolveDevAdminPassword,
 } from "./seed-dev-admin";
 import { organizations } from "./schema/organizations";
 import { rolePermissions, roles, userRoles, users } from "./schema";
@@ -91,7 +91,7 @@ async function seed() {
     return;
   }
 
-  const adminPassword = env.SEED_ADMIN_PASSWORD ?? DEV_ADMIN_PASSWORD;
+  const adminPassword = resolveDevAdminPassword(env);
   const existingAdmin = await db.select().from(users).where(eq(users.email, DEV_ADMIN_EMAIL)).limit(1);
 
   if (existingAdmin.length === 0) {

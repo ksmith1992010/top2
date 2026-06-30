@@ -94,7 +94,7 @@ Password is hashed via Better Auth `signUpEmail` — same flow as normal users.
 
 **Preview DB seeding:** not automatic on deploy. Run `db:migrate` and `db:seed` manually against the preview `DATABASE_URL`. Set `BETTER_AUTH_URL` to the preview hostname.
 
-**Production:** dev admin is **not** created unless an operator sets `SEED_DEV_ADMIN=true` and runs seed explicitly.
+**Production:** dev admin is **not** created automatically. To seed in production (operator-controlled only), set **both** `SEED_DEV_ADMIN=true` and `SEED_ADMIN_PASSWORD=<explicit-non-default-password>`. The default `password12345` is never allowed in production.
 
 **Login fails in preview?** Check migrations, seed, `BETTER_AUTH_URL`, and that `admin@example.com` exists in the DB.
 

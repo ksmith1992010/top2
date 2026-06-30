@@ -44,7 +44,7 @@ npm run db:migrate
 npm run db:seed
 ```
 
-**Deploy preview database:** not seeded automatically on deploy. After pointing at a preview database, run `db:migrate` and `db:seed` manually (or via your preview pipeline). Vercel preview deploys with `VERCEL_ENV=preview` allow the dev admin seed; production deploys skip it unless `SEED_DEV_ADMIN=true`.
+**Deploy preview database:** not seeded automatically on deploy. After pointing at a preview database, run `db:migrate` and `db:seed` manually (or via your preview pipeline). Vercel preview deploys with `VERCEL_ENV=preview` allow the dev admin seed with the default password; production deploys skip it unless `SEED_DEV_ADMIN=true` **and** `SEED_ADMIN_PASSWORD` is set to a non-default value.
 
 **If login fails in preview:**
 
