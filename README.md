@@ -2,7 +2,22 @@
 
 Clean rebuild of the Over The Top Restoration CRM — roofing and storm-restoration lifecycle from lead to closeout.
 
-**Status:** Foundation design only. No application code yet.
+## Status
+
+**PR-001 scaffold** — Next.js + Drizzle + PostgreSQL foundation. See [docs/prs/PR-001-scaffold.md](./docs/prs/PR-001-scaffold.md).
+
+## Local setup
+
+```bash
+cp .env.example .env.local
+# Edit DATABASE_URL
+npm install
+npm run db:migrate
+npm run db:seed   # optional: default org + roles
+npm run dev
+```
+
+Health check: `GET http://localhost:3000/api/health`
 
 ## Documents
 

@@ -30,6 +30,7 @@ top2/
 │       └── db/
 │           ├── index.ts        # drizzle client
 │           └── schema/
+│               ├── organizations.ts
 │               ├── users.ts
 │               ├── roles.ts
 │               └── index.ts
@@ -41,11 +42,13 @@ top2/
 
 ### Database tables (this PR only)
 
-- `users`
+- `organizations`
+- `users` (with `organization_id`)
 - `roles`
 - `role_permissions`
 - `user_roles`
-- Better Auth session/account tables (per Better Auth docs)
+
+Better Auth session/account tables ship in **PR-002**.
 
 ### Scripts
 

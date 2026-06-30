@@ -1,11 +1,16 @@
 -- T.O.P. CRM v2 — Reference schema (foundation)
 -- Source of truth for Drizzle migrations. Apply via drizzle-kit, not manually in prod.
--- Version: 0.1
+-- Version: 0.2 (product decisions applied)
 
 -- Extensions
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Enums
+CREATE TYPE job_type AS ENUM ('insurance', 'retail');
+
+CREATE TYPE job_participant_role AS ENUM (
+  'sales_owner', 'knocker', 'production_manager', 'office_admin'
+);
 CREATE TYPE job_status AS ENUM (
   'lead',
   'inspection_scheduled',
@@ -58,16 +63,24 @@ CREATE TYPE production_status AS ENUM (
   'not_scheduled', 'scheduled', 'in_progress', 'complete'
 );
 
--- Auth / users (PR-001)
-CREATE TABLE users (
+-- Auth / org (PR-001)
+CREATE TABLE organizations (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email         TEXT NOT NULL UNIQUE,
   name          TEXT NOT NULL,
-  phone         TEXT,
-  is_active     BOOLEAN NOT NULL DEFAULT TRUE,
-  deleted_at    TIMESTAMPTZ,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE users (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id UUID NOT NULL REFERENCES organizations(id),
+  email           TEXT NOT NULL UNIQUE,
+  name            TEXT NOT NULL,
+  phone           TEXT,
+  is_active       BOOLEAN NOT NULL DEFAULT TRUE,
+  deleted_at      TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE roles (
@@ -130,12 +143,12 @@ CREATE INDEX idx_properties_customer ON properties (customer_id);
 CREATE TABLE jobs (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   property_id       UUID NOT NULL REFERENCES properties(id),
+  organization_id   UUID NOT NULL REFERENCES organizations(id),
   job_number        TEXT NOT NULL UNIQUE,
   status            job_status NOT NULL DEFAULT 'lead',
+  job_type          job_type NOT NULL DEFAULT 'insurance',
   lead_source       TEXT,
-  assigned_to       UUID REFERENCES users(id),
   storm_date        DATE,
-  insurance_carrier TEXT,
   notes             TEXT,
   closed_at         TIMESTAMPTZ,
   created_by        UUID REFERENCES users(id),
@@ -145,10 +158,26 @@ CREATE TABLE jobs (
   updated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_jobs_status ON jobs (status) WHERE deleted_at IS NULL;
-CREATE INDEX idx_jobs_assigned ON jobs (assigned_to) WHERE deleted_at IS NULL;
+CREATE INDEX idx_jobs_org_status ON jobs (organization_id, status) WHERE deleted_at IS NULL;
 CREATE INDEX idx_jobs_property ON jobs (property_id);
 CREATE INDEX idx_jobs_created ON jobs (created_at DESC);
+CREATE INDEX idx_jobs_number ON jobs (job_number);
+
+CREATE TABLE job_participants (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  job_id        UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  user_id       UUID NOT NULL REFERENCES users(id),
+  role          job_participant_role NOT NULL,
+  assigned_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  assigned_by   UUID REFERENCES users(id),
+  removed_at    TIMESTAMPTZ
+);
+
+CREATE UNIQUE INDEX idx_job_participants_active_role
+  ON job_participants (job_id, role) WHERE removed_at IS NULL;
+
+CREATE INDEX idx_job_participants_job ON job_participants (job_id);
+CREATE INDEX idx_job_participants_user ON job_participants (user_id);
 
 CREATE TABLE job_events (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -166,7 +195,8 @@ CREATE INDEX idx_job_events_type ON job_events (event_type, occurred_at);
 
 CREATE TABLE claims (
   id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  job_id                UUID NOT NULL UNIQUE REFERENCES jobs(id) ON DELETE CASCADE,
+  job_id                UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+  is_primary            BOOLEAN NOT NULL DEFAULT TRUE,
   claim_number          TEXT,
   carrier               TEXT NOT NULL,
   policy_number         TEXT,
@@ -183,6 +213,9 @@ CREATE TABLE claims (
   created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE UNIQUE INDEX idx_claims_primary_per_job
+  ON claims (job_id) WHERE is_primary = TRUE;
 
 CREATE TABLE appointments (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
