@@ -3,12 +3,14 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { getAuth } from "@/lib/auth/auth";
 import { getServerEnv } from "@/lib/env";
+import {
+  DEV_ADMIN_EMAIL,
+  DEV_ADMIN_NAME,
+  DEV_ADMIN_PASSWORD,
+  isDevAdminSeedAllowed,
+} from "./seed-dev-admin";
 import { organizations } from "./schema/organizations";
 import { rolePermissions, roles, userRoles, users } from "./schema";
-
-const ADMIN_EMAIL = "admin@top.local";
-const ADMIN_NAME = "Admin User";
-const DEFAULT_ADMIN_PASSWORD = "top-local-admin";
 
 const ROLE_SEED = [
   {
@@ -83,20 +85,26 @@ async function seed() {
     }
   }
 
-  const adminPassword = env.SEED_ADMIN_PASSWORD ?? DEFAULT_ADMIN_PASSWORD;
-  const existingAdmin = await db.select().from(users).where(eq(users.email, ADMIN_EMAIL)).limit(1);
+  if (!isDevAdminSeedAllowed(env)) {
+    console.log("Seed complete: organization + roles (dev admin skipped in production)");
+    await connection.end();
+    return;
+  }
+
+  const adminPassword = env.SEED_ADMIN_PASSWORD ?? DEV_ADMIN_PASSWORD;
+  const existingAdmin = await db.select().from(users).where(eq(users.email, DEV_ADMIN_EMAIL)).limit(1);
 
   if (existingAdmin.length === 0) {
     const signUp = await getAuth().api.signUpEmail({
       body: {
-        email: ADMIN_EMAIL,
+        email: DEV_ADMIN_EMAIL,
         password: adminPassword,
-        name: ADMIN_NAME,
+        name: DEV_ADMIN_NAME,
       },
     });
 
     if (!signUp?.user) {
-      throw new Error("Failed to seed admin user via Better Auth");
+      throw new Error("Failed to seed dev admin user via Better Auth");
     }
 
     await db
@@ -114,9 +122,9 @@ async function seed() {
       roleId: adminRoleId,
     });
 
-    console.log(`Seed complete: admin user ${ADMIN_EMAIL} (password from SEED_ADMIN_PASSWORD or default docs)`);
+    console.log(`Seed complete: dev admin ${DEV_ADMIN_EMAIL} (password in docs / SEED_ADMIN_PASSWORD override)`);
   } else {
-    console.log("Seed complete: organization + roles (admin user already exists)");
+    console.log("Seed complete: organization + roles (dev admin already exists)");
   }
 
   await connection.end();

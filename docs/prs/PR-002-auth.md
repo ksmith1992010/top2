@@ -72,11 +72,31 @@ Permission format: `resource:action` or `resource:*`.
    ```
 
 3. Start app: `npm run dev`
-4. Open `/login`, sign in as `admin@top.local`
-   - Default dev password: `top-local-admin` (override with `SEED_ADMIN_PASSWORD`)
+4. Open `/login`, sign in as `admin@example.com` / `password12345`
 5. `GET /api/auth/me` returns user with `admin` role
 6. Hit protected route without session → 401 (API) or redirect to `/login` (pages)
 7. Sales user without `users:create` gets 403 on `POST /api/admin/users` (stub)
+
+## Preview login
+
+Auth protects deploy previews. The seed script creates a **dev/preview admin only** in non-production environments (or Vercel preview, or when `SEED_DEV_ADMIN=true`).
+
+| Field | Value |
+|-------|-------|
+| Email | `admin@example.com` |
+| Password | `password12345` |
+
+```bash
+npm run db:seed
+```
+
+Password is hashed via Better Auth `signUpEmail` — same flow as normal users.
+
+**Preview DB seeding:** not automatic on deploy. Run `db:migrate` and `db:seed` manually against the preview `DATABASE_URL`. Set `BETTER_AUTH_URL` to the preview hostname.
+
+**Production:** dev admin is **not** created unless an operator sets `SEED_DEV_ADMIN=true` and runs seed explicitly.
+
+**Login fails in preview?** Check migrations, seed, `BETTER_AUTH_URL`, and that `admin@example.com` exists in the DB.
 
 ## Automated tests
 
