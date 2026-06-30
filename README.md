@@ -4,7 +4,7 @@ Clean rebuild of the Over The Top Restoration CRM — roofing and storm-restorat
 
 ## Status
 
-**PR-001 scaffold** — Next.js + Drizzle + PostgreSQL foundation. See [docs/prs/PR-001-scaffold.md](./docs/prs/PR-001-scaffold.md).
+**PR-002 auth** — Better Auth login, sessions, roles. See [docs/prs/PR-002-auth.md](./docs/prs/PR-002-auth.md).
 
 ## Local setup
 
@@ -15,7 +15,7 @@ npm install
 # Drizzle CLI needs DATABASE_URL in the shell or a root .env (not .env.local alone):
 export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/top2
 npm run db:migrate
-npm run db:seed   # optional: default org + roles
+npm run db:seed   # org + roles + admin@top.local (see PR-002 docs for password)
 npm run dev
 ```
 
