@@ -126,6 +126,56 @@ These rules exist because v1 accumulated AI-generated layers. Do not repeat that
 9. **Prefer deleting** over adding compatibility shims
 10. **If unsure, read BLUEPRINT** — do not invent architecture
 
+See also [docs/checklists/code-redundancy-data-preservation.md](./docs/checklists/code-redundancy-data-preservation.md).
+
+---
+
+## Redundancy and data safety (tiered)
+
+Every PR must include the **short block** below. The [full checklist](./docs/checklists/code-redundancy-data-preservation.md) is required only when the PR touches schema, migrations, API routes, domain commands, auth, business data, storage, backfills, deletes, or integrations that write data.
+
+**Short block (paste into every PR):**
+
+```md
+## Redundancy / data safety
+
+- Duplicate mutation paths introduced: No / Yes
+- Existing data or migrations touched: No / Yes
+- Risk level: Low / Medium / High
+- Notes:
+```
+
+**Low-risk PRs** (docs-only, style, copy, test-only with no schema/command changes): short block is enough when **Existing data or migrations touched: No** and **Risk level: Low**.
+
+**Medium/high-risk PRs:** complete the full checklist in the doc and link it. Any **Yes** or **Medium/High** must include an explanation.
+
+Do **not** paste the full checklist into every PR by default.
+
+### Standing protections (always)
+
+- No duplicate mutation paths; no direct client-side DB writes
+- No hard deletes of business data; financial/audit records append-only
+- Additive / expand-contract migrations; never edit committed migrations
+- NOT NULL changes need backfill, default, or two-step plan
+- Risky data changes require a rollback plan
+
+### Redundancy audit (when full checklist applies)
+
+Before merging risky PRs, confirm the change does not introduce:
+
+- Duplicate business logic, API routes, DB paths, validation schemas, or permission checks
+- Duplicate status transition or timeline/activity logging logic
+- Generic helpers hiding business rules, fallback paths, or compatibility layers without reason
+- Unused files, imports, dead functions, or stale code
+
+**Required behavior:** Prefer fixing the existing source of truth. Prefer delete/consolidate over new helpers. New helpers need justification. Temporary duplication needs a TODO with owner and removal trigger.
+
+### Data preservation audit (when full checklist applies)
+
+Confirm whether the change could affect production data: drops, renames, nullability, defaults, enum/status changes, deletes, overwrites, backfills, orphaned records, or broken customer/job/claim/invoice/payment/document/photo/user/activity data.
+
+**Required behavior:** Destructive migrations forbidden unless explicitly approved. Additive first, then backfill, then cleanup in a later PR. Mutations touching business data must preserve activity/audit trail once the domain layer exists.
+
 ---
 
 ## PR checklist (copy into every PR description)
@@ -138,6 +188,8 @@ These rules exist because v1 accumulated AI-generated layers. Do not repeat that
 - [ ] Tests added
 - [ ] Rollback note in PR
 - [ ] Did not touch unrelated files
+- [ ] Redundancy / data safety short block in PR ([checklist](./docs/checklists/code-redundancy-data-preservation.md))
+- [ ] Full redundancy/data checklist completed if PR touches risky areas
 
 ---
 
