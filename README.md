@@ -78,7 +78,7 @@ These credentials are for development/preview review only — not a production b
 
 ## Job lifecycle
 
-Lead → Inspection Scheduled → Inspection Complete → Claim Filed → Adjuster Meeting Scheduled → Approved → Contract Signed → Material Ordered → Production Scheduled → Installed → Invoiced → Paid → Closed
+New Lead → Inspection Scheduled → Inspected → Claim Filed → Adjuster Meeting → Approved → Work Order → Scheduled → Installed → Collected → Closed (or Lost)
 
 ## First 3 PRs
 

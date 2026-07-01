@@ -7,7 +7,7 @@ const DASHBOARD_CARDS = [
   {
     title: "Leads to contact",
     value: "—",
-    note: "Lead intake arrives in PR-004",
+    note: "Lead intake is live at /leads",
   },
   {
     title: "Today's appointments",

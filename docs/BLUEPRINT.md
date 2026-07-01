@@ -34,7 +34,7 @@ Foundation first: auth, roles, core schema, job CRUD, status transitions, activi
 | Forms | **React Hook Form** + Zod | Standard pattern, minimal boilerplate |
 | Unit/integration tests | **Vitest** | Fast, native ESM |
 | E2E tests | **Playwright** | Mobile viewport testing |
-| Deploy | **Vercel** (app) + **Neon** (db) | Simple CI/CD, preview deployments |
+| Deploy | **Netlify** (app) + **Neon** (db) | Preview deployments via Netlify; DB branching on Neon |
 
 ### What we deliberately avoid in v2 foundation
 
@@ -202,7 +202,7 @@ Central entity. Status lives here and only changes via transition commands.
 
 **`job_status` enum:**
 
-`lead` | `inspection_scheduled` | `inspection_complete` | `claim_filed` | `adjuster_meeting_scheduled` | `approved` | `contract_signed` | `material_ordered` | `production_scheduled` | `installed` | `invoiced` | `paid` | `closed`
+`lead` | `inspection_scheduled` | `inspected` | `claim_filed` | `adjuster_meeting` | `approved` | `work_order` | `scheduled` | `installed` | `collected` | `closed` | `lost`
 
 **Indexes:** `(organization_id, status)`, `(property_id)`, `(created_at DESC)`, `(job_number)` — job number is the primary user search key
 
@@ -629,7 +629,43 @@ Each PR is independently deployable, tested, and revertible.
 
 ### Phase 0 — Repo foundation (PRs 1–3, detailed below)
 
-### Phase 1 — Core domain (PRs 4–8)
+### Phase 1 — CRM foundation (PRs 4–8)
+
+| PR | Goal |
+|----|------|
+| 4 | Core schema: customers, properties, jobs, participants |
+| 5 | Leads list (read layer) at `/leads` |
+| 6 | Customer detail page at `/leads/:id` |
+| 7 | Create/edit lead (single mutation path) |
+| 8 | Job pipeline transitions + activity events |
+
+### Phase 2 — Extended domain (PRs 9+)
+
+| PR | Goal |
+|----|------|
+| 9 | Production foundation |
+| 10 | Documents/photos foundation |
+| 11 | Appointments + calendar page |
+| 12 | Claims |
+| 13 | Tasks |
+| 14 | Estimates (manual entry) |
+
+### Phase 3 — Financial (PRs 15–17)
+
+| PR | Goal |
+|----|------|
+| 15 | Invoices |
+| 16 | Payments + invoice status sync |
+| 17 | Dashboard + reports v1 |
+
+### Phase 4 — Files & polish (PRs 18+)
+
+Photos, documents UI, search, performance, role hardening.
+
+### Legacy Phase 1 table (superseded)
+
+<details>
+<summary>Original PR 4–8 sequence (bundled CRUD per entity)</summary>
 
 | PR | Goal |
 |----|------|
@@ -639,7 +675,9 @@ Each PR is independently deployable, tested, and revertible.
 | 7 | Activity timeline (write on every mutation + read UI) |
 | 8 | KU/CI job events + reports stub |
 
-### Phase 2 — Operations (PRs 9–13)
+</details>
+
+### Phase 2 — Operations (legacy PRs 9–13)
 
 | PR | Goal |
 |----|------|

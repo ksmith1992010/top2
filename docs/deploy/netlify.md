@@ -2,6 +2,28 @@
 
 T.O.P. CRM v2 deploys from [ksmith1992010/top2](https://github.com/ksmith1992010/top2) via Netlify as a Next.js app.
 
+## First-time site setup
+
+Link the GitHub repo in the [Netlify UI](https://app.netlify.com/):
+
+| Setting | Value |
+|---------|-------|
+| Repository | `ksmith1992010/top2` |
+| Production branch | `main` |
+| Build command | `npm run build` |
+| Publish directory | `.next` |
+| Node version | 22 |
+| Framework | Next.js |
+
+After linking:
+
+1. Set production env vars (see below) — use staging/preview DB only until production is ready.
+2. Trigger a deploy from `main` and confirm the build succeeds.
+3. Enable **Deploy previews** for pull requests.
+4. For each preview: set `BETTER_AUTH_URL` to the preview hostname, migrate/seed the preview DB from local (see seed gating below), then test login.
+
+Do **not** connect production customer data until domain PRs are stable.
+
 ## Build settings
 
 | Setting | Value |
