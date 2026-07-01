@@ -4,7 +4,7 @@ Clean rebuild of the Over The Top Restoration CRM — roofing and storm-restorat
 
 ## Status
 
-**PR-001 scaffold** — Next.js + Drizzle + PostgreSQL foundation. See [docs/prs/PR-001-scaffold.md](./docs/prs/PR-001-scaffold.md).
+**PR-002 auth** — Better Auth login, sessions, roles. See [docs/prs/PR-002-auth.md](./docs/prs/PR-002-auth.md).
 
 ## Local setup
 
@@ -15,13 +15,45 @@ npm install
 # Drizzle CLI needs DATABASE_URL in the shell or a root .env (not .env.local alone):
 export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/top2
 npm run db:migrate
-npm run db:seed   # optional: default org + roles
+npm run db:seed
 npm run dev
 ```
+
+Sign in at `/login` with the seeded dev admin (see [Preview login](#preview-login) below).
 
 **Environment notes:** Next.js loads `.env.local` for `npm run dev`. Drizzle commands (`db:migrate`, `db:seed`, `db:generate`) read `DATABASE_URL` from the process environment. CI sets `DATABASE_URL` directly in GitHub Actions.
 
 Health check: `GET http://localhost:3000/api/health`
+
+## Preview login
+
+Auth protects the app, so deploy previews require login.
+
+**Seeded dev admin** (development / preview / non-production only):
+
+| Field | Value |
+|-------|-------|
+| Email | `admin@example.com` |
+| Password | `password12345` |
+
+Seed command (uses Better Auth sign-up — same password hashing as normal users):
+
+```bash
+export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/top2
+npm run db:migrate
+npm run db:seed
+```
+
+**Deploy preview database:** not seeded automatically on deploy. After pointing at a preview database, run `db:migrate` and `db:seed` manually (or via your preview pipeline). Vercel preview deploys with `VERCEL_ENV=preview` allow the dev admin seed with the default password; production deploys skip it unless `SEED_DEV_ADMIN=true` **and** `SEED_ADMIN_PASSWORD` is set to a non-default value.
+
+**If login fails in preview:**
+
+1. Confirm migrations ran against the preview `DATABASE_URL`
+2. Run `npm run db:seed` against that database
+3. Set `BETTER_AUTH_URL` to the preview URL (e.g. `https://your-preview.vercel.app`)
+4. Confirm the user exists: seed logs should mention `admin@example.com`
+
+These credentials are for development/preview review only — not a production backdoor.
 
 ## Documents
 

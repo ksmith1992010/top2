@@ -14,7 +14,8 @@
     "db:seed": "tsx src/lib/db/seed.ts"
   },
   "dependencies": {
-    "drizzle-orm": "^0.44.2",
+    "better-auth": "^1.6.23",
+    "drizzle-orm": "^0.45.2",
     "next": "^15.3.4",
     "postgres": "^3.4.7",
     "react": "^19.1.0",
@@ -32,5 +33,10 @@
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "better-call": {
+      "zod": "$zod"
+    }
   }
 }
