@@ -14,7 +14,6 @@
     "db:seed": "tsx src/lib/db/seed.ts"
   },
   "dependencies": {
-    "@better-auth/drizzle-adapter": "^1.6.23",
     "better-auth": "^1.6.23",
     "drizzle-orm": "^0.45.2",
     "next": "^15.3.4",
