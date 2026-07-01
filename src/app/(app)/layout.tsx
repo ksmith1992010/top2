@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
+import { AppShell } from "@/components/layout/app-shell";
 import { getSession } from "@/lib/auth/server";
-import { LogoutButton } from "@/components/logout-button";
 
 export const dynamic = "force-dynamic";
 
@@ -11,23 +11,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif" }}>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "1rem 2rem",
-          borderBottom: "1px solid #ddd",
-        }}
-      >
-        <div>
-          <strong>T.O.P. CRM v2</strong>
-          <span style={{ marginLeft: "1rem", color: "#555" }}>{session.user.email}</span>
-        </div>
-        <LogoutButton />
-      </header>
+    <AppShell
+      user={{
+        email: session.user.email,
+        name: session.user.name,
+      }}
+    >
       {children}
-    </div>
+    </AppShell>
   );
 }

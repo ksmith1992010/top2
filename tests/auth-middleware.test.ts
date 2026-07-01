@@ -21,4 +21,11 @@ describe("middleware", () => {
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toContain("/login");
   });
+
+  it("redirects protected section routes to login", () => {
+    const request = new NextRequest("http://localhost:3000/leads");
+    const response = middleware(request);
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toContain("/login");
+  });
 });
