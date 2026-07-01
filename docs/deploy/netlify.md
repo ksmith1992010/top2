@@ -39,21 +39,42 @@ Set these in the Netlify **Deploy previews** context (or per-branch overrides):
 
 Preview deploys do **not** run migrations or seed automatically. Before testing login on a preview:
 
-1. Point `DATABASE_URL` at the preview database.
-2. Run migrations: `npm run db:migrate` (with `DATABASE_URL` exported or in root `.env`).
-3. Run seed: `npm run db:seed`.
-4. Set `BETTER_AUTH_URL` to the preview hostname and redeploy if it changed.
+1. Point `DATABASE_URL` at the preview database (dedicated Neon branch recommended).
+2. Run migrations from your **local dev shell** (not on Netlify):
+   ```bash
+   export DATABASE_URL=postgresql://...
+   npm run db:migrate
+   ```
+3. Run seed from the same local shell:
+   ```bash
+   npm run db:seed
+   ```
+4. Set `BETTER_AUTH_URL` to the preview hostname in Netlify env vars and redeploy if it changed.
+
+### Seed gating on Netlify (important)
+
+Netlify builds run with `NODE_ENV=production`. The seed script's dev-admin gate ([`src/lib/db/seed-dev-admin.ts`](../../src/lib/db/seed-dev-admin.ts)) currently checks `VERCEL_ENV` for preview bypass — **Netlify `CONTEXT=deploy-preview` is not wired yet**.
+
+| How you seed | Dev admin created? | Default password allowed? |
+|--------------|-------------------|---------------------------|
+| Local shell (default `NODE_ENV=development`) against preview `DATABASE_URL` | Yes | Yes (`password12345`) |
+| `NODE_ENV=production` on Netlify (no `VERCEL_ENV`) | **No** — org + roles only | N/A |
+| `NODE_ENV=production` + `SEED_DEV_ADMIN=true` | Yes | **No** — requires non-default `SEED_ADMIN_PASSWORD` |
+
+**Recommended path:** always migrate + seed from your local dev machine pointed at the preview database. Do not rely on Netlify build hooks for seeding.
 
 ### Preview login
 
-After migrate + seed:
+After migrate + seed (from local dev shell):
 
 | Field | Value |
 |-------|-------|
 | Email | `admin@example.com` |
 | Password | `password12345` |
 
-If login fails, confirm migrations ran, the seed completed, `BETTER_AUTH_URL` matches the preview URL, and `admin@example.com` exists in the preview database.
+These credentials are for development/preview review only. **Never use the default password in production.**
+
+If login fails, confirm migrations ran, the seed completed (check logs for `admin@example.com`), `BETTER_AUTH_URL` matches the preview URL, and the user exists in the preview database.
 
 ## Local parity
 
