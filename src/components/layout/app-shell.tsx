@@ -17,13 +17,18 @@ export function AppShell({ user, children }: AppShellProps) {
     <div className="flex min-h-screen bg-top-surface">
       <Sidebar />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-top-border bg-white px-4 md:px-6">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-top-border bg-top-surface-raised/95 px-4 backdrop-blur-sm md:px-6">
           <div className="md:hidden">
-            <p className="text-sm font-semibold text-top-navy">T.O.P. CRM</p>
+            <p className="text-sm font-bold text-white">T.O.P.</p>
+            <p className="text-[10px] font-medium uppercase tracking-wider text-top-muted">
+              Command center
+            </p>
           </div>
           <div className="hidden md:block">
-            <p className="text-xs font-medium uppercase tracking-wide text-top-muted">Signed in</p>
-            <p className="text-sm font-semibold text-top-navy">Workspace</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-top-accent">
+              Operations cockpit
+            </p>
+            <p className="text-sm font-semibold text-white">Roofing ops workspace</p>
           </div>
           <UserMenu user={user} />
         </header>

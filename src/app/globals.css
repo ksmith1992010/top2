@@ -8,6 +8,40 @@
   }
 
   body {
-    @apply min-h-full bg-top-surface text-slate-900;
+    @apply min-h-full bg-top-surface text-slate-100;
+  }
+}
+
+@layer components {
+  .auth-input {
+    @apply w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2.5 text-sm text-slate-100 placeholder:text-top-muted outline-none transition-colors;
+    @apply focus:border-top-accent/60 focus:ring-2 focus:ring-top-accent/20;
+  }
+
+  .auth-input-error {
+    @apply border-red-500/70 focus:border-red-500 focus:ring-red-500/20;
+  }
+
+  .auth-label {
+    @apply text-sm font-medium text-slate-300;
+  }
+
+  .auth-button-primary {
+    @apply w-full rounded-lg bg-top-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors;
+    @apply hover:bg-top-accent-hover focus:outline-none focus:ring-2 focus:ring-top-accent/40 focus:ring-offset-2 focus:ring-offset-top-surface;
+    @apply disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .auth-button-secondary {
+    @apply rounded-lg border border-top-border-subtle px-4 py-2.5 text-sm font-medium text-slate-300 transition-colors;
+    @apply hover:border-top-muted hover:bg-top-surface-raised hover:text-white;
+  }
+
+  .command-card {
+    @apply rounded-xl border border-top-border bg-top-surface-card shadow-command;
+  }
+
+  .command-card-raised {
+    @apply rounded-xl border border-top-border-subtle bg-top-surface-raised shadow-command;
   }
 }

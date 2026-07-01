@@ -49,8 +49,8 @@ export function MobileMoreMenu() {
       </button>
 
       {open ? (
-        <div className="absolute bottom-full right-0 mb-2 w-52 rounded-xl border border-top-border bg-white p-2 shadow-lg">
-          <ul className="flex flex-col gap-1">
+        <div className="absolute bottom-full right-0 mb-2 w-52 rounded-xl border border-top-border bg-top-surface-card p-2 shadow-command-lg">
+          <ul className="flex flex-col gap-0.5">
             {items.map((item) => {
               const active = isNavActive(pathname, item.href);
               return (
@@ -60,7 +60,7 @@ export function MobileMoreMenu() {
                     className={`flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium ${
                       active
                         ? "bg-top-accent/10 text-top-accent"
-                        : "text-slate-700 hover:bg-slate-100"
+                        : "text-slate-400 hover:bg-top-surface-raised hover:text-slate-200"
                     }`}
                     onClick={() => setOpen(false)}
                   >

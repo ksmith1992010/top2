@@ -7,7 +7,7 @@ import { NavIconGlyph } from "@/components/layout/nav-icon";
 import { getMobilePrimaryNavItems, isNavActive } from "@/lib/nav-config";
 
 const tabClass =
-  "flex min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 text-[10px] font-medium";
+  "flex min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 py-2 text-[10px] font-medium transition-colors";
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -15,7 +15,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-top-border bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-top-border bg-top-surface-raised/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm md:hidden"
       aria-label="Mobile navigation"
     >
       <div className="flex items-stretch">

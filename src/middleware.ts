@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 function isPublicPath(pathname: string): boolean {
-  if (pathname === "/login" || pathname === "/api/health") {
+  if (pathname === "/login" || pathname === "/request-access" || pathname === "/api/health") {
     return true;
   }
 
