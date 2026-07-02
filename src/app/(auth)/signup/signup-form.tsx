@@ -41,6 +41,7 @@ export default function SignupForm() {
           setLoadingInvite(false);
           return;
         }
+        setError(null);
         setEmail(data.email);
         setOrganizationName(data.organizationName);
         setLoadingInvite(false);
