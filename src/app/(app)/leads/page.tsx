@@ -31,7 +31,7 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
       </div>
 
       <Suspense fallback={<div className="h-10" />}>
-        <LeadsSearch initialSearch={search ?? ""} />
+        <LeadsSearch key={search ?? ""} initialSearch={search ?? ""} />
       </Suspense>
 
       {items.length === 0 ? (

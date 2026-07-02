@@ -12,20 +12,23 @@ export async function updateCustomerCommand(input: {
   const { customerId, data, actorId } = input;
   const db = getDb();
 
-  const [existing] = await db
-    .select()
-    .from(customers)
-    .where(and(eq(customers.id, customerId), isNull(customers.deletedAt)))
-    .limit(1);
-
-  if (!existing) {
-    throw new DomainError("NOT_FOUND", "Customer not found");
-  }
-
   const email = data.email !== undefined ? data.email.trim() || null : undefined;
   const phone = data.phone !== undefined ? data.phone.trim() || null : undefined;
 
   return db.transaction(async (tx) => {
+    // Row lock serializes concurrent updates of the same customer, so the
+    // soft-delete check and the primary-property upsert below can't race.
+    const [existing] = await tx
+      .select()
+      .from(customers)
+      .where(and(eq(customers.id, customerId), isNull(customers.deletedAt)))
+      .limit(1)
+      .for("update");
+
+    if (!existing) {
+      throw new DomainError("NOT_FOUND", "Customer not found");
+    }
+
     if (email || phone) {
       await lockCustomerContact(tx);
 
