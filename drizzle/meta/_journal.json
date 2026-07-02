@@ -19,8 +19,15 @@
     {
       "idx": 2,
       "version": "7",
+      "when": 1751420400000,
+      "tag": "0002_core_domain",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
       "when": 1751593200000,
-      "tag": "0002_signup_invites",
+      "tag": "0003_signup_invites",
       "breakpoints": true
     }
   ]
