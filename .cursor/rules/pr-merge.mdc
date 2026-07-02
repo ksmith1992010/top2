@@ -1,0 +1,36 @@
+---
+description: GitHub PR squash-merge workflow for ksmith1992010/top2
+alwaysApply: true
+---
+
+# PR merge workflow
+
+Do **not** land reviewed PRs by direct-pushing a squash commit with `Closes #<PR>`.
+
+Always use the GitHub PR merge flow:
+
+```bash
+gh pr merge <PR_NUMBER> --squash --delete-branch
+```
+
+Or use the GitHub UI squash merge button.
+
+## Before merging
+
+- Confirm PR is open
+- Confirm PR is not draft
+- Confirm expected head SHA
+- Confirm CI is green on that exact head
+- Confirm review blockers are resolved
+- Confirm redundancy/data-safety block is present in the PR body
+
+## After merging
+
+- Confirm PR shows as **Merged** (not merely closed)
+- Confirm `main` advanced
+- Pull latest `main`
+- Delete branch only through the PR merge flow or after PR is marked merged
+
+## Emergency exception
+
+Do not direct-push a squash commit to `main` to close a PR unless explicitly instructed for an emergency recovery.
