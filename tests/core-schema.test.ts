@@ -9,8 +9,10 @@ describe.skipIf(!hasDatabase)("core domain schema", () => {
   it("supports customer → property → job FK chain", async () => {
     const db = getDb();
 
-    const [org] = await db.select().from(organizations).limit(1);
-    expect(org).toBeTruthy();
+    const [org] = await db
+      .insert(organizations)
+      .values({ name: `Test Org ${Date.now()}` })
+      .returning();
 
     const [customer] = await db
       .insert(customers)
@@ -37,7 +39,7 @@ describe.skipIf(!hasDatabase)("core domain schema", () => {
       .insert(jobs)
       .values({
         propertyId: property.id,
-        organizationId: org!.id,
+        organizationId: org.id,
         jobNumber: `TOP-${Date.now()}`,
         status: "lead",
       })
@@ -48,6 +50,7 @@ describe.skipIf(!hasDatabase)("core domain schema", () => {
     await db.delete(jobs).where(eq(jobs.id, job.id));
     await db.delete(properties).where(eq(properties.id, property.id));
     await db.delete(customers).where(eq(customers.id, customer.id));
+    await db.delete(organizations).where(eq(organizations.id, org.id));
 
     await closeDb();
   });
