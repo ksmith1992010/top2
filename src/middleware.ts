@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 function isPublicPath(pathname: string): boolean {
-  if (pathname === "/login" || pathname === "/api/health") {
+  if (
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/api/health" ||
+    pathname === "/api/register" ||
+    pathname.startsWith("/api/invites/validate")
+  ) {
     return true;
   }
 

@@ -8,3 +8,4 @@ export * from "./properties";
 export * from "./jobs";
 export * from "./job-participants";
 export * from "./activity-events";
+export * from "./signup-invites";
