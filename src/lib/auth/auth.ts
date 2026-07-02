@@ -24,11 +24,24 @@ function createAuth() {
     emailAndPassword: {
       enabled: true,
     },
+    advanced: {
+      database: {
+        // users.id is a uuid column, so Better Auth must generate UUID ids (its
+        // default short-string ids fail the uuid cast). A function is used rather
+        // than the "uuid" mode because "uuid" omits the id and relies on a DB
+        // default, which our text session/account/verification ids don't have.
+        generateId: () => crypto.randomUUID(),
+      },
+    },
     user: {
       additionalFields: {
         organizationId: {
+          // Populated by the create hook (below) and, for invites, a post-signup
+          // update — never supplied as sign-up input. Marking it required here
+          // makes Better Auth reject sign-up before the hook can fill it, which
+          // breaks both seeding and invite registration. The DB column is NOT NULL.
           type: "string",
-          required: true,
+          required: false,
           input: false,
         },
         phone: {
