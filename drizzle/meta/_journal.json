@@ -29,6 +29,13 @@
       "when": 1751506800000,
       "tag": "0003_activity_events",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1751593200000,
+      "tag": "0004_signup_invites",
+      "breakpoints": true
     }
   ]
 }

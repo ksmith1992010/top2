@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiPermission } from "@/lib/auth/api-auth";
-import { createCustomerCommand, DomainError } from "@/domain/commands/create-customer";
+import { createCustomerCommand } from "@/domain/commands/create-customer";
+import { DomainError } from "@/domain/errors";
 import { listCustomers } from "@/domain/queries/list-customers";
 import { createCustomerSchema } from "@/domain/schemas/customer";
 

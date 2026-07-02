@@ -1,7 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { AUTH_COPY } from "@/lib/auth/auth-copy";
 import { authClient } from "@/lib/auth/client";
 
 export default function LoginForm() {
@@ -19,10 +25,7 @@ export default function LoginForm() {
     setError(null);
     setIsSubmitting(true);
 
-    const result = await authClient.signIn.email({
-      email,
-      password,
-    });
+    const result = await authClient.signIn.email({ email, password });
 
     setIsSubmitting(false);
 
@@ -36,35 +39,47 @@ export default function LoginForm() {
   }
 
   return (
-    <main style={{ fontFamily: "system-ui, sans-serif", padding: "2rem", maxWidth: "24rem" }}>
-      <h1>Sign in</h1>
-      <p>T.O.P. CRM v2</p>
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: "0.75rem" }}>
-        <label style={{ display: "grid", gap: "0.25rem" }}>
-          Email
-          <input
+    <Card className="w-full max-w-md">
+      <h1 className="text-xl font-semibold text-top-text">{AUTH_COPY.loginTitle}</h1>
+      <p className="mt-2 text-sm text-top-muted">Use your work email to access the workspace.</p>
+
+      <form onSubmit={handleSubmit} className="mt-6 grid gap-4">
+        <div className="grid gap-1.5">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
             type="email"
             autoComplete="email"
             required
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
+            hasError={Boolean(error)}
           />
-        </label>
-        <label style={{ display: "grid", gap: "0.25rem" }}>
-          Password
-          <input
+        </div>
+        <div className="grid gap-1.5">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
             type="password"
             autoComplete="current-password"
             required
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
+            hasError={Boolean(error)}
           />
-        </label>
-        {error ? <p style={{ color: "crimson" }}>{error}</p> : null}
-        <button type="submit" disabled={isSubmitting}>
+        </div>
+        {error ? <p className="text-sm text-red-400">{error}</p> : null}
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Signing in…" : "Sign in"}
-        </button>
+        </Button>
       </form>
-    </main>
+
+      <p className="mt-6 text-center text-sm text-top-muted">
+        Invited to the team?{" "}
+        <Link href="/signup" className="font-medium text-top-gold hover:text-top-gold-hover">
+          Create account
+        </Link>
+      </p>
+    </Card>
   );
 }
