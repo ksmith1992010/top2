@@ -106,8 +106,13 @@ export async function registerWithInviteCommand(input: RegisterWithInviteInput) 
     // invite stays usable and the email isn't left permanently blocked.
     try {
       await db.delete(users).where(eq(users.id, userId));
-    } catch {
-      // Best effort — if cleanup also fails, surface the original error.
+    } catch (cleanupError) {
+      // Surface the original error; log the stuck state (user exists but has
+      // no role and the invite is still pending) so an admin can remediate.
+      console.error(
+        `register-with-invite: failed to clean up auth user ${userId} after setup failure`,
+        cleanupError,
+      );
     }
 
     if (error instanceof DomainError) {

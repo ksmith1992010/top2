@@ -22,6 +22,16 @@ function isPublicPath(pathname: string): boolean {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Registration is invite-only. Better Auth's public sign-up endpoint is
+  // blocked at the edge; invite registration calls signUpEmail in-process
+  // from /api/register, which does not pass through middleware.
+  if (pathname.startsWith("/api/auth/sign-up")) {
+    return NextResponse.json(
+      { error: { code: "SIGNUP_DISABLED", message: "Registration is invite-only" } },
+      { status: 403 },
+    );
+  }
+
   if (isPublicPath(pathname)) {
     return NextResponse.next();
   }
