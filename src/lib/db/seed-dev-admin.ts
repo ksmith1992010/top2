@@ -51,3 +51,29 @@ export function resolveDevAdminPassword(
 
   return env.SEED_ADMIN_PASSWORD ?? DEV_ADMIN_PASSWORD;
 }
+
+// --- Real owner/operator admin (Over The Top Restoration) ---
+
+export const OWNER_ADMIN_EMAIL = "kyle.smith@ottrestoration.com";
+export const OWNER_ADMIN_NAME = "Kyle Smith";
+
+/**
+ * The real owner admin is provisioned only when an explicit, non-default
+ * password is supplied via SEED_ADMIN_PASSWORD. It is never created with the
+ * default dev password, and works in every environment (dev, preview, prod).
+ * Returns the password to use, or null to skip owner-admin seeding.
+ */
+export function resolveOwnerAdminPassword(
+  env: Pick<ServerEnv, "SEED_ADMIN_PASSWORD">,
+): string | null {
+  const password = env.SEED_ADMIN_PASSWORD;
+  if (!password) {
+    return null;
+  }
+  if (password === DEV_ADMIN_PASSWORD) {
+    throw new Error(
+      "SEED_ADMIN_PASSWORD must be an explicit, non-default password to seed the owner admin.",
+    );
+  }
+  return password;
+}

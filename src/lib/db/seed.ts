@@ -7,10 +7,48 @@ import {
   DEV_ADMIN_EMAIL,
   DEV_ADMIN_NAME,
   isDevAdminSeedAllowed,
+  OWNER_ADMIN_EMAIL,
+  OWNER_ADMIN_NAME,
   resolveDevAdminPassword,
+  resolveOwnerAdminPassword,
 } from "./seed-dev-admin";
 import { organizations } from "./schema/organizations";
 import { rolePermissions, roles, userRoles, users } from "./schema";
+
+type PostgresDb = ReturnType<typeof drizzle>;
+
+/**
+ * Idempotently create an admin user through Better Auth (hashed password),
+ * mark it verified, and grant the admin role. Skips if the email already exists.
+ */
+async function seedAdminUser(
+  db: PostgresDb,
+  adminRoleId: string,
+  account: { email: string; name: string; password: string },
+): Promise<"created" | "exists"> {
+  const existing = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, account.email))
+    .limit(1);
+
+  if (existing.length > 0) {
+    return "exists";
+  }
+
+  const signUp = await getAuth().api.signUpEmail({
+    body: { email: account.email, password: account.password, name: account.name },
+  });
+
+  if (!signUp?.user) {
+    throw new Error(`Failed to seed admin user ${account.email} via Better Auth`);
+  }
+
+  await db.update(users).set({ emailVerified: true }).where(eq(users.id, signUp.user.id));
+  await db.insert(userRoles).values({ userId: signUp.user.id, roleId: adminRoleId });
+
+  return "created";
+}
 
 const ROLE_SEED = [
   {
@@ -85,46 +123,34 @@ async function seed() {
     }
   }
 
-  if (!isDevAdminSeedAllowed(env)) {
-    console.log("Seed complete: organization + roles (dev admin skipped in production)");
-    await connection.end();
-    return;
+  const adminRoleId = roleIds.get("admin");
+  if (!adminRoleId) {
+    throw new Error("Admin role missing after seed");
   }
 
-  const adminPassword = resolveDevAdminPassword(env);
-  const existingAdmin = await db.select().from(users).where(eq(users.email, DEV_ADMIN_EMAIL)).limit(1);
-
-  if (existingAdmin.length === 0) {
-    const signUp = await getAuth().api.signUpEmail({
-      body: {
-        email: DEV_ADMIN_EMAIL,
-        password: adminPassword,
-        name: DEV_ADMIN_NAME,
-      },
+  // Real owner admin — created in any environment when an explicit password is set.
+  const ownerPassword = resolveOwnerAdminPassword(env);
+  if (ownerPassword) {
+    const result = await seedAdminUser(db, adminRoleId, {
+      email: OWNER_ADMIN_EMAIL,
+      name: OWNER_ADMIN_NAME,
+      password: ownerPassword,
     });
-
-    if (!signUp?.user) {
-      throw new Error("Failed to seed dev admin user via Better Auth");
-    }
-
-    await db
-      .update(users)
-      .set({ emailVerified: true })
-      .where(eq(users.id, signUp.user.id));
-
-    const adminRoleId = roleIds.get("admin");
-    if (!adminRoleId) {
-      throw new Error("Admin role missing after seed");
-    }
-
-    await db.insert(userRoles).values({
-      userId: signUp.user.id,
-      roleId: adminRoleId,
-    });
-
-    console.log(`Seed complete: dev admin ${DEV_ADMIN_EMAIL} (password in docs / SEED_ADMIN_PASSWORD override)`);
+    console.log(`Owner admin ${OWNER_ADMIN_EMAIL}: ${result}`);
   } else {
-    console.log("Seed complete: organization + roles (dev admin already exists)");
+    console.log("Owner admin skipped (set SEED_ADMIN_PASSWORD to provision it)");
+  }
+
+  // Demo/preview admin — gated to non-production (or Vercel preview / SEED_DEV_ADMIN).
+  if (isDevAdminSeedAllowed(env)) {
+    const result = await seedAdminUser(db, adminRoleId, {
+      email: DEV_ADMIN_EMAIL,
+      name: DEV_ADMIN_NAME,
+      password: resolveDevAdminPassword(env),
+    });
+    console.log(`Dev admin ${DEV_ADMIN_EMAIL}: ${result}`);
+  } else {
+    console.log("Dev admin skipped in production");
   }
 
   await connection.end();

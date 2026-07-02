@@ -4,7 +4,9 @@ import {
   DEV_ADMIN_PASSWORD,
   isDevAdminSeedAllowed,
   isProductionSeedContext,
+  OWNER_ADMIN_EMAIL,
   resolveDevAdminPassword,
+  resolveOwnerAdminPassword,
 } from "@/lib/db/seed-dev-admin";
 
 describe("isDevAdminSeedAllowed", () => {
@@ -106,5 +108,27 @@ describe("dev admin credentials", () => {
   it("uses documented preview email and password defaults", () => {
     expect(DEV_ADMIN_EMAIL).toBe("admin@example.com");
     expect(DEV_ADMIN_PASSWORD.length).toBeGreaterThanOrEqual(8);
+  });
+});
+
+describe("resolveOwnerAdminPassword", () => {
+  it("uses the correct owner email", () => {
+    expect(OWNER_ADMIN_EMAIL).toBe("kyle.smith@ottrestoration.com");
+  });
+
+  it("skips owner admin when no password is set", () => {
+    expect(resolveOwnerAdminPassword({})).toBeNull();
+  });
+
+  it("rejects the default dev password", () => {
+    expect(() =>
+      resolveOwnerAdminPassword({ SEED_ADMIN_PASSWORD: DEV_ADMIN_PASSWORD }),
+    ).toThrow(/explicit, non-default/);
+  });
+
+  it("returns an explicit password in any environment", () => {
+    expect(resolveOwnerAdminPassword({ SEED_ADMIN_PASSWORD: "Overthetop.123" })).toBe(
+      "Overthetop.123",
+    );
   });
 });
