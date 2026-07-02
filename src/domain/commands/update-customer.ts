@@ -2,7 +2,8 @@ import { and, eq, isNull, ne, or } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { activityEvents, customers, properties } from "@/lib/db/schema";
 import type { UpdateCustomerInput } from "@/domain/schemas/customer";
-import { DomainError, lockCustomerContact } from "@/domain/commands/create-customer";
+import { lockCustomerContact } from "@/domain/commands/create-customer";
+import { DomainError } from "@/domain/errors";
 
 export async function updateCustomerCommand(input: {
   customerId: string;

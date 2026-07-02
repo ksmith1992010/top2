@@ -4,18 +4,10 @@ import { getDb } from "@/lib/db";
 import { activityEvents, customers, jobs, properties } from "@/lib/db/schema";
 import type * as schema from "@/lib/db/schema";
 import type { CreateCustomerInput } from "@/domain/schemas/customer";
+import { DomainError } from "@/domain/errors";
 import { generateJobNumber } from "@/lib/job-numbers";
 
 type Db = PostgresJsDatabase<typeof schema>;
-
-export class DomainError extends Error {
-  constructor(
-    public readonly code: string,
-    message: string,
-  ) {
-    super(message);
-  }
-}
 
 /**
  * Serializes customer contact-uniqueness checks across concurrent
