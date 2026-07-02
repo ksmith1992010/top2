@@ -36,20 +36,24 @@ export async function createInviteCommand(input: {
     throw new DomainError("EMAIL_EXISTS", "A user with this email already exists");
   }
 
-  const [pending] = await db
-    .select({ id: signupInvites.id })
+  // Check pending invites by email alone (not per-org): users.email is
+  // globally unique, so a second org's invite could never be accepted anyway.
+  const pendingInvites = await db
+    .select({ id: signupInvites.id, expiresAt: signupInvites.expiresAt })
     .from(signupInvites)
-    .where(
-      and(
-        eq(signupInvites.organizationId, organizationId),
-        eq(signupInvites.email, email),
-        isNull(signupInvites.acceptedAt),
-      ),
-    )
-    .limit(1);
+    .where(and(eq(signupInvites.email, email), isNull(signupInvites.acceptedAt)));
 
-  if (pending) {
+  if (pendingInvites.some((invite) => invite.expiresAt >= new Date())) {
     throw new DomainError("INVITE_PENDING", "A pending invite already exists for this email");
+  }
+
+  if (pendingInvites.length > 0) {
+    // Only expired, never-accepted invites remain. Remove them so the email
+    // can be re-invited — the pending-email unique index can't express
+    // expiry, so a stale row would otherwise block the new insert forever.
+    await db
+      .delete(signupInvites)
+      .where(and(eq(signupInvites.email, email), isNull(signupInvites.acceptedAt)));
   }
 
   const token = generateInviteToken();
