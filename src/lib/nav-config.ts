@@ -30,7 +30,7 @@ export const APP_NAV_ITEMS: NavItem[] = [
     href: "/leads",
     icon: "leads",
     description: "Prospects and intake before job creation.",
-    comingIn: "PR-004",
+    comingIn: "Active",
   },
   {
     label: "Jobs",
