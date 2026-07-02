@@ -57,7 +57,8 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     if (error instanceof DomainError) {
-      const status = error.code === "INVITE_PENDING" ? 409 : 400;
+      const status =
+        error.code === "INVITE_PENDING" || error.code === "EMAIL_EXISTS" ? 409 : 400;
       return NextResponse.json({ error: { code: error.code, message: error.message } }, { status });
     }
     throw error;

@@ -77,6 +77,10 @@ export async function registerWithInviteCommand(input: RegisterWithInviteInput) 
         throw new DomainError("INVITE_USED", "Invite has already been used");
       }
 
+      if (invite.expiresAt < new Date()) {
+        throw new DomainError("INVITE_EXPIRED", "Invite has expired");
+      }
+
       await tx
         .update(users)
         .set({
@@ -97,6 +101,15 @@ export async function registerWithInviteCommand(input: RegisterWithInviteInput) 
         .where(eq(signupInvites.id, invite.id));
     });
   } catch (error) {
+    // Compensate for the signUpEmail call that can't join our transaction:
+    // remove the half-created auth user (session/account rows cascade) so the
+    // invite stays usable and the email isn't left permanently blocked.
+    try {
+      await db.delete(users).where(eq(users.id, userId));
+    } catch {
+      // Best effort — if cleanup also fails, surface the original error.
+    }
+
     if (error instanceof DomainError) {
       throw error;
     }
