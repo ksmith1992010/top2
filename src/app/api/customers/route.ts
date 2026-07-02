@@ -4,6 +4,14 @@ import { createCustomerCommand, DomainError } from "@/domain/commands/create-cus
 import { listCustomers } from "@/domain/queries/list-customers";
 import { createCustomerSchema } from "@/domain/schemas/customer";
 
+function parseNonNegativeInt(value: string | null): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined;
+}
+
 export async function GET(request: Request) {
   const auth = await requireApiPermission("customers:read");
   if (!auth.ok) {
@@ -12,10 +20,8 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search") ?? undefined;
-  const limit = searchParams.get("limit") ? Number.parseInt(searchParams.get("limit")!, 10) : undefined;
-  const offset = searchParams.get("offset")
-    ? Number.parseInt(searchParams.get("offset")!, 10)
-    : undefined;
+  const limit = parseNonNegativeInt(searchParams.get("limit"));
+  const offset = parseNonNegativeInt(searchParams.get("offset"));
 
   const result = await listCustomers({ search, limit, offset });
 

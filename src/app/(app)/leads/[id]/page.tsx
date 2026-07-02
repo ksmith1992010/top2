@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LeadForm } from "@/components/leads/lead-form";
+import { requirePagePermission } from "@/lib/auth/api-auth";
 import { getCustomerDetail } from "@/domain/queries/get-customer-detail";
 import { JOB_STATUS_LABELS } from "@/lib/db/schema/enums";
 
@@ -22,6 +23,8 @@ export default async function CustomerDetailPage({
   params,
   searchParams,
 }: CustomerDetailPageProps) {
+  await requirePagePermission("customers:read");
+
   const { id } = await params;
   const { edit } = await searchParams;
   const customer = await getCustomerDetail(id);

@@ -5,10 +5,17 @@ import type * as schema from "@/lib/db/schema";
 
 type Db = PostgresJsDatabase<typeof schema>;
 
-/** Generate the next job number in TOP-YYYY-#### format for the current year. */
+/**
+ * Generate the next job number in TOP-YYYY-#### format for the current year.
+ *
+ * Call inside a transaction: the advisory lock serializes concurrent
+ * generation and is held until that transaction commits.
+ */
 export async function generateJobNumber(db: Db = getDb()): Promise<string> {
   const year = new Date().getFullYear();
   const prefix = `TOP-${year}-`;
+
+  await db.execute(sql`SELECT pg_advisory_xact_lock(hashtext('jobs:job_number'))`);
 
   const result = await db.execute<{ max_num: string | null }>(sql`
     SELECT MAX(CAST(SUBSTRING(job_number FROM ${prefix.length + 1}) AS INTEGER)) AS max_num

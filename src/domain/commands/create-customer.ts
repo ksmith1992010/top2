@@ -1,8 +1,12 @@
-import { and, eq, isNull, or } from "drizzle-orm";
+import { and, eq, isNull, or, sql } from "drizzle-orm";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { getDb } from "@/lib/db";
 import { activityEvents, customers, jobs, properties } from "@/lib/db/schema";
+import type * as schema from "@/lib/db/schema";
 import type { CreateCustomerInput } from "@/domain/schemas/customer";
 import { generateJobNumber } from "@/lib/job-numbers";
+
+type Db = PostgresJsDatabase<typeof schema>;
 
 export class DomainError extends Error {
   constructor(
@@ -13,12 +17,24 @@ export class DomainError extends Error {
   }
 }
 
-async function findDuplicateCustomer(email: string | undefined, phone: string | undefined) {
+/**
+ * Serializes customer contact-uniqueness checks across concurrent
+ * transactions. Take this lock (inside a transaction) before checking for
+ * duplicates so two simultaneous writes can't both pass the check.
+ */
+export async function lockCustomerContact(db: Db) {
+  await db.execute(sql`SELECT pg_advisory_xact_lock(hashtext('customers:contact'))`);
+}
+
+async function findDuplicateCustomer(
+  db: Db,
+  email: string | undefined,
+  phone: string | undefined,
+) {
   if (!email && !phone) {
     return null;
   }
 
-  const db = getDb();
   const conditions = [];
 
   if (email) {
@@ -46,14 +62,19 @@ export async function createCustomerCommand(input: {
   const email = data.email?.trim() || null;
   const phone = data.phone?.trim() || null;
 
-  const duplicate = await findDuplicateCustomer(email ?? undefined, phone ?? undefined);
-  if (duplicate) {
-    throw new DomainError("DUPLICATE_CUSTOMER", "A customer with this email or phone already exists");
-  }
-
   const db = getDb();
 
   return db.transaction(async (tx) => {
+    await lockCustomerContact(tx);
+
+    const duplicate = await findDuplicateCustomer(tx, email ?? undefined, phone ?? undefined);
+    if (duplicate) {
+      throw new DomainError(
+        "DUPLICATE_CUSTOMER",
+        "A customer with this email or phone already exists",
+      );
+    }
+
     const [customer] = await tx
       .insert(customers)
       .values({

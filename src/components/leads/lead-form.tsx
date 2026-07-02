@@ -111,6 +111,9 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
         router.refresh();
       } else {
         onSuccess?.();
+        if (customerId) {
+          router.push(`/leads/${customerId}`);
+        }
         router.refresh();
       }
     } catch {

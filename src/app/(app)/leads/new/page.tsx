@@ -1,6 +1,9 @@
 import { LeadForm } from "@/components/leads/lead-form";
+import { requirePagePermission } from "@/lib/auth/api-auth";
 
-export default function NewLeadPage() {
+export default async function NewLeadPage() {
+  await requirePagePermission("customers:create");
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 md:px-8 md:py-8">
       <p className="text-xs font-medium uppercase tracking-wide text-top-muted">Leads</p>

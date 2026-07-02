@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { requirePagePermission } from "@/lib/auth/api-auth";
 import { listCustomers } from "@/domain/queries/list-customers";
 import { LeadsSearch } from "@/components/leads/leads-search";
 
@@ -8,6 +9,8 @@ type LeadsPageProps = {
 };
 
 export default async function LeadsPage({ searchParams }: LeadsPageProps) {
+  await requirePagePermission("customers:read");
+
   const { search } = await searchParams;
   const { items, total } = await listCustomers({ search });
 
