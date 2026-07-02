@@ -15,6 +15,20 @@
       "when": 1751334000000,
       "tag": "0001_better_auth",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1751420400000,
+      "tag": "0002_core_domain",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1751506800000,
+      "tag": "0003_activity_events",
+      "breakpoints": true
     }
   ]
 }
