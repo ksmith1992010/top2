@@ -17,8 +17,12 @@ describe.skipIf(!hasDatabase)("invite registration integration", () => {
       .values({ name: `Invite Test Org ${Date.now()}` })
       .returning();
 
-    const [adminRole] = await db.select().from(roles).where(eq(roles.name, "admin")).limit(1);
-    expect(adminRole).toBeTruthy();
+    let createdRoleId: string | null = null;
+    const [existingRole] = await db.select().from(roles).where(eq(roles.name, "sales")).limit(1);
+    if (!existingRole) {
+      const [created] = await db.insert(roles).values({ name: "sales" }).returning();
+      createdRoleId = created.id;
+    }
 
     const email = `invite-${Date.now()}@example.com`;
     const { token, invite } = await createInviteCommand({
@@ -33,6 +37,9 @@ describe.skipIf(!hasDatabase)("invite registration integration", () => {
     expect(validated.organizationName).toBe(org.name);
 
     await db.delete(signupInvites).where(eq(signupInvites.id, invite.id));
+    if (createdRoleId) {
+      await db.delete(roles).where(eq(roles.id, createdRoleId));
+    }
     await db.delete(organizations).where(eq(organizations.id, org.id));
 
     await closeDb();
