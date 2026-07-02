@@ -15,16 +15,16 @@ export function UserMenu({ user }: UserMenuProps) {
   return (
     <div className="flex items-center gap-3">
       <div className="hidden text-right sm:block">
-        <p className="text-sm font-medium text-slate-900">{displayName}</p>
+        <p className="text-sm font-medium text-top-text">{displayName}</p>
         <p className="text-xs text-top-muted">{user.email}</p>
       </div>
       <div
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-top-navy text-sm font-semibold text-white sm:hidden"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-top-gold text-sm font-semibold text-top-navy sm:hidden"
         aria-hidden
       >
         {displayName.charAt(0).toUpperCase()}
       </div>
-      <LogoutButton className="rounded-lg border border-top-border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" />
+      <LogoutButton className="auth-button-secondary !w-auto px-3 py-2" />
     </div>
   );
 }

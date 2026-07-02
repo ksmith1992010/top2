@@ -48,10 +48,17 @@ function createAuth() {
       user: {
         create: {
           before: async (user) => {
+            const existingOrgId = (user as { organizationId?: string }).organizationId;
+            if (existingOrgId) {
+              return { data: user };
+            }
+
             const db = getDb();
             const [organization] = await db.select().from(organizations).limit(1);
             if (!organization) {
-              throw new Error("Cannot create a user before an organization is seeded");
+              throw new Error(
+                "Cannot create a user before an organization exists. Use invite registration or seed first.",
+              );
             }
 
             return {

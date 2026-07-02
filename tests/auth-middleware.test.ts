@@ -9,6 +9,20 @@ describe("middleware", () => {
     expect(response.status).toBe(200);
   });
 
+  it("allows signup page without a session cookie", () => {
+    const request = new NextRequest("http://localhost:3000/signup?token=abc");
+    const response = middleware(request);
+    expect(response.status).toBe(200);
+  });
+
+  it("allows invite validation API without a session cookie", () => {
+    const request = new NextRequest(
+      "http://localhost:3000/api/invites/validate?token=abc",
+    );
+    const response = middleware(request);
+    expect(response.status).toBe(200);
+  });
+
   it("returns 401 for protected API routes without a session cookie", () => {
     const request = new NextRequest("http://localhost:3000/api/admin/users");
     const response = middleware(request);

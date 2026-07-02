@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { NavIconGlyph } from "@/components/layout/nav-icon";
 import { getMobileMoreNavItems, isMoreNavActive, isNavActive } from "@/lib/nav-config";
+import { cn } from "@/lib/cn";
 
 export function MobileMoreMenu() {
   const pathname = usePathname();
@@ -36,9 +37,10 @@ export function MobileMoreMenu() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className={`flex min-h-[44px] w-full flex-col items-center justify-center gap-0.5 px-1 py-2 text-[10px] font-medium ${
-          moreActive || open ? "text-top-accent" : "text-top-muted"
-        }`}
+        className={cn(
+          "flex min-h-[44px] w-full flex-col items-center justify-center gap-0.5 px-1 py-2 text-[10px] font-medium",
+          moreActive || open ? "text-top-gold" : "text-top-muted",
+        )}
         aria-expanded={open}
         aria-haspopup="true"
       >
@@ -49,7 +51,7 @@ export function MobileMoreMenu() {
       </button>
 
       {open ? (
-        <div className="absolute bottom-full right-0 mb-2 w-52 rounded-xl border border-top-border bg-white p-2 shadow-lg">
+        <div className="absolute bottom-full right-0 mb-2 w-52 rounded-xl border border-top-border bg-top-card p-2 shadow-command-lg">
           <ul className="flex flex-col gap-1">
             {items.map((item) => {
               const active = isNavActive(pathname, item.href);
@@ -57,11 +59,12 @@ export function MobileMoreMenu() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className={`flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium ${
+                    className={cn(
+                      "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium",
                       active
-                        ? "bg-top-accent/10 text-top-accent"
-                        : "text-slate-700 hover:bg-slate-100"
-                    }`}
+                        ? "bg-top-gold/10 text-top-gold"
+                        : "text-top-muted hover:bg-top-surface-raised hover:text-top-text",
+                    )}
                     onClick={() => setOpen(false)}
                   >
                     <NavIconGlyph icon={item.icon} />
