@@ -5,6 +5,7 @@ function isPublicPath(pathname: string): boolean {
   if (
     pathname === "/login" ||
     pathname === "/signup" ||
+    pathname === "/request-access" ||
     pathname === "/api/health" ||
     pathname === "/api/register" ||
     pathname.startsWith("/api/invites/validate")

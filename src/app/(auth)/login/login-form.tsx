@@ -80,6 +80,12 @@ export default function LoginForm() {
           Create account
         </Link>
       </p>
+      <p className="mt-2 text-center text-sm text-top-muted">
+        {AUTH_COPY.loginRequestAccessPrompt}{" "}
+        <Link href="/request-access" className="font-medium text-top-gold hover:text-top-gold-hover">
+          {AUTH_COPY.requestAccessTitle}
+        </Link>
+      </p>
     </Card>
   );
 }
