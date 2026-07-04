@@ -68,17 +68,27 @@ describe("resolveDevAdminPassword", () => {
   });
 
   it("uses documented default in development", () => {
-    expect(resolveDevAdminPassword({ NODE_ENV: "development" })).toBe(DEV_ADMIN_PASSWORD);
+    expect(resolveDevAdminPassword({ NODE_ENV: "development" }, undefined)).toBe(
+      DEV_ADMIN_PASSWORD,
+    );
+  });
+
+  it("accepts the default as an explicit override outside production", () => {
+    expect(resolveDevAdminPassword({ NODE_ENV: "development" }, DEV_ADMIN_PASSWORD)).toBe(
+      DEV_ADMIN_PASSWORD,
+    );
   });
 
   it("uses documented default on Vercel preview", () => {
     vi.stubEnv("VERCEL_ENV", "preview");
-    expect(resolveDevAdminPassword({ NODE_ENV: "production" })).toBe(DEV_ADMIN_PASSWORD);
+    expect(resolveDevAdminPassword({ NODE_ENV: "production" }, undefined)).toBe(
+      DEV_ADMIN_PASSWORD,
+    );
   });
 
   it("requires SEED_ADMIN_PASSWORD in production", () => {
     vi.stubEnv("NODE_ENV", "production");
-    expect(() => resolveDevAdminPassword({ NODE_ENV: "production" })).toThrow(
+    expect(() => resolveDevAdminPassword({ NODE_ENV: "production" }, undefined)).toThrow(
       /SEED_ADMIN_PASSWORD is required/,
     );
   });
@@ -86,20 +96,14 @@ describe("resolveDevAdminPassword", () => {
   it("rejects the default password in production", () => {
     vi.stubEnv("NODE_ENV", "production");
     expect(() =>
-      resolveDevAdminPassword({
-        NODE_ENV: "production",
-        SEED_ADMIN_PASSWORD: DEV_ADMIN_PASSWORD,
-      }),
-    ).toThrow(/default dev password cannot be used in production/);
+      resolveDevAdminPassword({ NODE_ENV: "production" }, DEV_ADMIN_PASSWORD),
+    ).toThrow(/must not be the default dev password/);
   });
 
   it("allows explicit production password", () => {
     vi.stubEnv("NODE_ENV", "production");
     expect(
-      resolveDevAdminPassword({
-        NODE_ENV: "production",
-        SEED_ADMIN_PASSWORD: "operator-set-production-password",
-      }),
+      resolveDevAdminPassword({ NODE_ENV: "production" }, "operator-set-production-password"),
     ).toBe("operator-set-production-password");
   });
 });
@@ -112,23 +116,36 @@ describe("dev admin credentials", () => {
 });
 
 describe("resolveOwnerAdminPassword", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it("uses the correct owner email", () => {
     expect(OWNER_ADMIN_EMAIL).toBe("kyle.smith@ottrestoration.com");
   });
 
   it("skips owner admin when no password is set", () => {
-    expect(resolveOwnerAdminPassword({})).toBeNull();
+    expect(resolveOwnerAdminPassword(undefined)).toBeNull();
   });
 
   it("rejects the default dev password", () => {
-    expect(() =>
-      resolveOwnerAdminPassword({ SEED_ADMIN_PASSWORD: DEV_ADMIN_PASSWORD }),
-    ).toThrow(/explicit, non-default/);
+    expect(() => resolveOwnerAdminPassword(DEV_ADMIN_PASSWORD)).toThrow(
+      /must not be the default dev password/,
+    );
   });
 
-  it("returns an explicit password in any environment", () => {
-    expect(resolveOwnerAdminPassword({ SEED_ADMIN_PASSWORD: "Overthetop.123" })).toBe(
-      "Overthetop.123",
+  it("rejects passwords shorter than 8 characters", () => {
+    expect(() => resolveOwnerAdminPassword("short1!")).toThrow(/at least 8 characters/);
+  });
+
+  it("returns an explicitly set password", () => {
+    expect(resolveOwnerAdminPassword("seed-test-fixture-password")).toBe(
+      "seed-test-fixture-password",
     );
+  });
+
+  it("reads only its dedicated env var, never SEED_ADMIN_PASSWORD", () => {
+    vi.stubEnv("SEED_ADMIN_PASSWORD", "demo-override-password");
+    expect(resolveOwnerAdminPassword()).toBeNull();
   });
 });

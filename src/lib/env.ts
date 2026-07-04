@@ -15,7 +15,6 @@ const serverEnvSchema = z
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     BETTER_AUTH_SECRET: z.string().min(32).optional(),
     BETTER_AUTH_URL: z.string().url().optional(),
-    SEED_ADMIN_PASSWORD: z.string().min(8).optional(),
   })
   .transform((env) => {
     const isProduction = env.NODE_ENV === "production";
@@ -44,6 +43,5 @@ export function getServerEnv(): ServerEnv {
     NODE_ENV: process.env.NODE_ENV,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
-    SEED_ADMIN_PASSWORD: process.env.SEED_ADMIN_PASSWORD,
   });
 }

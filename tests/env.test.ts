@@ -15,7 +15,6 @@ describe("getServerEnv", () => {
       NODE_ENV: "test",
       BETTER_AUTH_SECRET: "development-only-secret-at-least-32-characters",
       BETTER_AUTH_URL: "http://localhost:3000",
-      SEED_ADMIN_PASSWORD: undefined,
     });
   });
 

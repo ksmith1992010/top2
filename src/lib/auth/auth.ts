@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
@@ -30,7 +31,8 @@ function createAuth() {
         // default short-string ids fail the uuid cast). A function is used rather
         // than the "uuid" mode because "uuid" omits the id and relies on a DB
         // default, which our text session/account/verification ids don't have.
-        generateId: () => crypto.randomUUID(),
+        // node:crypto import (not the bare global) keeps this Node-18-safe.
+        generateId: () => randomUUID(),
       },
     },
     user: {
@@ -66,8 +68,15 @@ function createAuth() {
               return { data: user };
             }
 
+            // Single-organization fallback (see BLUEPRINT: one company operationally).
+            // Deterministic oldest-org pick; if multi-org ever ships, org assignment
+            // must become an explicit input on every creation path instead.
             const db = getDb();
-            const [organization] = await db.select().from(organizations).limit(1);
+            const [organization] = await db
+              .select()
+              .from(organizations)
+              .orderBy(organizations.createdAt)
+              .limit(1);
             if (!organization) {
               throw new Error(
                 "Cannot create a user before an organization exists. Use invite registration or seed first.",
