@@ -37,7 +37,7 @@ export const APP_NAV_ITEMS: NavItem[] = [
     href: "/jobs",
     icon: "jobs",
     description: "Job lifecycle hub — status, timeline, and assignments.",
-    comingIn: "PR-005+",
+    comingIn: "Active",
   },
   {
     label: "Production",
