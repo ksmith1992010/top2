@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePagePermission } from "@/lib/auth/api-auth";
+import { getUserPermissions } from "@/lib/auth/roles";
+import { hasPermission } from "@/lib/permissions";
 import { getJobDetail } from "@/domain/queries/get-job-detail";
 import { JobDetailsForm } from "@/components/jobs/job-details-form";
+import { JobPipeline } from "@/components/jobs/job-pipeline";
 import { StatusBadge } from "@/components/jobs/status-badge";
 
 type JobDetailPageProps = {
@@ -31,6 +34,9 @@ export default async function JobDetailPage({ params, searchParams }: JobDetailP
   }
 
   const isEditing = edit === "1";
+  const permissions = await getUserPermissions(auth.userId);
+  const canTransition = hasPermission(permissions, "jobs:transition");
+  const canGoBackward = hasPermission(permissions, "jobs:transition:admin");
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 md:px-8 md:py-8">
@@ -128,10 +134,22 @@ export default async function JobDetailPage({ params, searchParams }: JobDetailP
           </p>
         </section>
 
-        <PlaceholderSection
-          title="Status pipeline"
-          note="Status transitions ship in PR-006. Status is read-only until then."
-        />
+        <section className="rounded-xl border border-top-border bg-white p-6 shadow-sm">
+          <h2 className="text-sm font-medium text-top-navy">Status pipeline</h2>
+          <div className="mt-4">
+            {canTransition ? (
+              <JobPipeline
+                jobId={id}
+                currentStatus={job.status}
+                canGoBackward={canGoBackward}
+              />
+            ) : (
+              <p className="text-sm text-top-muted">
+                You don&apos;t have permission to change job status.
+              </p>
+            )}
+          </div>
+        </section>
         <PlaceholderSection
           title="Activity"
           note="Timeline events appear here in PR-007."

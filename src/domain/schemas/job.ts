@@ -1,4 +1,12 @@
 import { z } from "zod";
+import { JOB_STATUSES, type JobStatus } from "@/lib/db/schema/enums";
+
+export const transitionJobSchema = z.object({
+  toStatus: z.enum(JOB_STATUSES as unknown as [JobStatus, ...JobStatus[]]),
+  reason: z.string().trim().optional(),
+});
+
+export type TransitionJobInput = z.infer<typeof transitionJobSchema>;
 
 export const updateJobSchema = z.object({
   notes: z.string().trim().optional(),
