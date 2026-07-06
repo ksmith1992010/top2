@@ -4,6 +4,8 @@ import { requirePagePermission } from "@/lib/auth/api-auth";
 import { getUserPermissions } from "@/lib/auth/roles";
 import { hasPermission } from "@/lib/permissions";
 import { getJobDetail } from "@/domain/queries/get-job-detail";
+import { listJobActivity } from "@/domain/queries/list-activity";
+import { ActivityTimeline } from "@/components/activity/activity-timeline";
 import { JobDetailsForm } from "@/components/jobs/job-details-form";
 import { JobPipeline } from "@/components/jobs/job-pipeline";
 import { StatusBadge } from "@/components/jobs/status-badge";
@@ -12,15 +14,6 @@ type JobDetailPageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ edit?: string }>;
 };
-
-function PlaceholderSection({ title, note }: { title: string; note: string }) {
-  return (
-    <section className="rounded-xl border border-dashed border-top-border bg-slate-50 px-4 py-6">
-      <h2 className="text-sm font-medium text-top-navy">{title}</h2>
-      <p className="mt-2 text-sm text-slate-500">{note}</p>
-    </section>
-  );
-}
 
 export default async function JobDetailPage({ params, searchParams }: JobDetailPageProps) {
   const auth = await requirePagePermission("jobs:read");
@@ -37,6 +30,7 @@ export default async function JobDetailPage({ params, searchParams }: JobDetailP
   const permissions = await getUserPermissions(auth.userId);
   const canTransition = hasPermission(permissions, "jobs:transition");
   const canGoBackward = hasPermission(permissions, "jobs:transition:admin");
+  const events = await listJobActivity(id);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 md:px-8 md:py-8">
@@ -150,10 +144,12 @@ export default async function JobDetailPage({ params, searchParams }: JobDetailP
             )}
           </div>
         </section>
-        <PlaceholderSection
-          title="Activity"
-          note="Timeline events appear here in PR-007."
-        />
+        <section className="rounded-xl border border-top-border bg-white p-6 shadow-sm">
+          <h2 className="text-sm font-medium text-top-navy">Activity</h2>
+          <div className="mt-4">
+            <ActivityTimeline events={events} />
+          </div>
+        </section>
       </div>
     </div>
   );

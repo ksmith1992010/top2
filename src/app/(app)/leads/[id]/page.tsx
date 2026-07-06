@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { LeadForm } from "@/components/leads/lead-form";
 import { requirePagePermission } from "@/lib/auth/api-auth";
 import { getCustomerDetail } from "@/domain/queries/get-customer-detail";
+import { listCustomerActivity } from "@/domain/queries/list-activity";
+import { ActivityTimeline } from "@/components/activity/activity-timeline";
 import { JOB_STATUS_LABELS } from "@/lib/db/schema/enums";
 
 type CustomerDetailPageProps = {
@@ -34,6 +36,7 @@ export default async function CustomerDetailPage({
   }
 
   const isEditing = edit === "1";
+  const events = await listCustomerActivity(id);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 md:px-8 md:py-8">
@@ -150,10 +153,12 @@ export default async function CustomerDetailPage({
             )}
           </section>
 
-          <PlaceholderSection
-            title="Activity"
-            note="Timeline events appear here after job transitions and mutations."
-          />
+          <section className="rounded-xl border border-top-border bg-white p-6 shadow-sm">
+            <h2 className="text-sm font-medium text-top-navy">Activity</h2>
+            <div className="mt-4">
+              <ActivityTimeline events={events} />
+            </div>
+          </section>
           <PlaceholderSection title="Documents" note="Document uploads ship in a later PR." />
           <PlaceholderSection title="Production" note="Production workflows ship in a later PR." />
         </div>
