@@ -1,0 +1,21 @@
+# Copy to .dev.vars for local `wrangler dev`. Never commit real secrets.
+#
+# Generate a strong bearer token, e.g.:
+#   openssl rand -hex 32
+MCP_BEARER_TOKEN=replace-with-a-long-random-bearer-token
+
+# Fine-grained GitHub personal access token (see README).
+# Required scopes depend on tools you enable:
+#   Contents: Read-only (for file read / code search)
+#   Issues: Read and write (only if ENABLE_CREATE_GITHUB_ISSUE=true)
+GITHUB_TOKEN=github_pat_replace_me
+
+# Optional local overrides (also configurable in wrangler.toml [vars]):
+# GITHUB_OWNER=ksmith1992010
+# GITHUB_ALLOWED_REPOS=repo-one,repo-two
+# ENABLE_CREATE_GITHUB_ISSUE=false
+# MAX_FILE_SIZE_BYTES=102400
+# MAX_RESPONSE_SIZE_BYTES=204800
+# REQUEST_TIMEOUT_MS=15000
+# RATE_LIMIT_MAX_REQUESTS=60
+# RATE_LIMIT_WINDOW_MS=60000
