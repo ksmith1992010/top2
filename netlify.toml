@@ -1,5 +1,9 @@
 [build]
-  command = "npm run build"
+  # Temporary: migrate + seed during Netlify build so production admin can be
+  # created/reset when SEED_DEV_ADMIN=true (DATABASE_URL is only available on
+  # Netlify builders, not via the secrets API). Revert to `npm run build` after
+  # the one-off production seed succeeds.
+  command = "npm run db:migrate && npm run db:seed && npm run build"
   publish = ".next"
 
 [build.environment]

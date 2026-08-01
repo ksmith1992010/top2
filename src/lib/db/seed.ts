@@ -1,4 +1,5 @@
-import { eq } from "drizzle-orm";
+import { hashPassword } from "better-auth/crypto";
+import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { getAuth } from "@/lib/auth/auth";
@@ -10,7 +11,7 @@ import {
   resolveDevAdminPassword,
 } from "./seed-dev-admin";
 import { organizations } from "./schema/organizations";
-import { rolePermissions, roles, userRoles, users } from "./schema";
+import { account, rolePermissions, roles, userRoles, users } from "./schema";
 
 const ROLE_SEED = [
   {
@@ -123,6 +124,21 @@ async function seed() {
     });
 
     console.log(`Seed complete: dev admin ${DEV_ADMIN_EMAIL} (password in docs / SEED_ADMIN_PASSWORD override)`);
+  } else if (env.SEED_ADMIN_PASSWORD) {
+    // Operator-triggered reset: only when SEED_ADMIN_PASSWORD is explicitly set.
+    const adminUser = existingAdmin[0];
+    const hashed = await hashPassword(adminPassword);
+    const updated = await db
+      .update(account)
+      .set({ password: hashed, updatedAt: new Date() })
+      .where(and(eq(account.userId, adminUser.id), eq(account.providerId, "credential")))
+      .returning({ id: account.id });
+
+    if (updated.length === 0) {
+      throw new Error("Admin user exists but credential account password could not be updated");
+    }
+
+    console.log(`Seed complete: reset password for existing admin ${DEV_ADMIN_EMAIL}`);
   } else {
     console.log("Seed complete: organization + roles (dev admin already exists)");
   }
