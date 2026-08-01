@@ -6,11 +6,3 @@ export async function getSession() {
     headers: await headers(),
   });
 }
-
-export async function requireSession() {
-  const session = await getSession();
-  if (!session) {
-    return null;
-  }
-  return session;
-}
