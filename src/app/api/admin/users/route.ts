@@ -22,7 +22,7 @@ export async function POST() {
   }
 
   return NextResponse.json(
-    { error: { code: "NOT_IMPLEMENTED", message: "User admin API arrives in a later PR" } },
+    { error: { code: "NOT_IMPLEMENTED", message: "User admin is not available yet" } },
     { status: 501 },
   );
 }

@@ -142,7 +142,7 @@ export default async function CustomerDetailPage({
                   </div>
                 </dl>
                 <p className="text-xs text-slate-500">
-                  Status changes and the job pipeline ship in a later PR.
+                  Pipeline controls are not wired yet.
                 </p>
               </div>
             ) : (
@@ -152,10 +152,17 @@ export default async function CustomerDetailPage({
 
           <PlaceholderSection
             title="Activity"
-            note="Timeline events appear here after job transitions and mutations."
+            note="Timeline events show here once job updates are logged."
           />
-          <PlaceholderSection title="Documents" note="Document uploads ship in a later PR." />
-          <PlaceholderSection title="Production" note="Production workflows ship in a later PR." />
+          <PlaceholderSection
+            title="Documents"
+            note="Documents and photos are coming in a later PR."
+          />
+          <PlaceholderSection
+            title="Production"
+            note="Install scheduling is not wired yet."
+          />
+
         </div>
       )}
     </div>

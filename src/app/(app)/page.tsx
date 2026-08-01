@@ -1,23 +1,23 @@
 const DASHBOARD_CARDS = [
   {
-    title: "Active jobs",
+    title: "Jobs in motion",
     value: "—",
-    note: "Job pipeline arrives in PR-005+",
+    note: "Pipeline counts land with the jobs board.",
   },
   {
-    title: "Leads to contact",
+    title: "Open intakes",
     value: "—",
-    note: "Lead intake arrives in PR-004",
+    note: "Lead counts wire up next.",
   },
   {
     title: "Today's appointments",
     value: "—",
-    note: "Calendar module ships later",
+    note: "Schedule is not wired yet.",
   },
   {
     title: "Production queue",
     value: "—",
-    note: "Production board ships later",
+    note: "Install board ships later.",
   },
 ] as const;
 
@@ -26,9 +26,9 @@ export default function DashboardPage() {
     <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">
       <div className="mb-8">
         <p className="text-xs font-medium uppercase tracking-wide text-top-gold">Dashboard</p>
-        <h1 className="mt-1 text-2xl font-semibold text-top-text">Good morning</h1>
+        <h1 className="mt-1 text-2xl font-semibold text-top-text">Ready for today</h1>
         <p className="mt-2 max-w-2xl text-sm text-top-muted">
-          Your T.O.P. workspace is ready. Metrics below are placeholders until domain PRs land.
+          Track every roof from lead to paid. Storm leads, inspections, and installs in one place.
         </p>
       </div>
 
