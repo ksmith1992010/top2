@@ -1,7 +1,9 @@
-# API reference (v1)
+# API reference
 
-Base URL: `/api/v1`  
-Auth: session cookie (Better Auth) on all routes except `/auth/login` and `/api/health`.
+**Implemented base path today:** `/api` (Next.js App Router).  
+**Blueprint target:** `/api/v1` — treat sections below without a live route as **planned**.
+
+Auth: session cookie (Better Auth) on protected routes. Public: `/api/health`, Better Auth handlers under `/api/auth/*` (except `/api/auth/me`), `/api/register`, `/api/invites/validate`, `/request-access`.
 
 Response shape:
 
@@ -12,19 +14,35 @@ Response shape:
 
 Full design rationale: [BLUEPRINT.md](./BLUEPRINT.md#4-api-design).
 
+### Live on main (not exhaustive)
+
+| Method | Path | Notes |
+|--------|------|-------|
+| GET | `/api/health` | DB connectivity |
+| * | `/api/auth/*` | Better Auth |
+| GET | `/api/auth/me` | Session user + permissions |
+| GET/POST | `/api/customers` | List / create |
+| GET/PATCH | `/api/customers/:id` | Detail / update |
+| POST | `/api/invites` | Create invite (admin) |
+| GET | `/api/invites/validate` | Validate invite token |
+| POST | `/api/register` | Invite-only signup |
+| POST | `/api/admin/users` | Stub `501` |
+
 ---
 
 ## Auth
 
 | Method | Path | Body | Notes |
 |--------|------|------|-------|
-| POST | `/auth/login` | `{ email, password }` | Sets session cookie |
+| POST | `/auth/login` | `{ email, password }` | Sets session cookie (Better Auth) |
 | POST | `/auth/logout` | — | Clears session |
 | GET | `/auth/me` | — | User + permissions[] |
 
 ---
 
 ## Customers
+
+**Status:** Implemented under `/api/customers` (see live table above). Property nested routes below may still be planned.
 
 | Method | Path | Permission |
 |--------|------|------------|
@@ -46,6 +64,8 @@ Activity: `customer.created`
 ---
 
 ## Jobs
+
+**Status:** Planned — job rows exist from lead intake; list/detail/transition APIs are not live yet.
 
 | Method | Path | Permission | Notes |
 |--------|------|------------|-------|

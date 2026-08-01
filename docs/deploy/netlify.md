@@ -81,7 +81,7 @@ Run migrate and seed from a **trusted local or admin shell** (your laptop or an 
 
 ### Seed gating on Netlify (important)
 
-Netlify sets `CONTEXT=deploy-preview` on preview deploys, but seed gating in [`src/lib/db/seed-dev-admin.ts`](../../src/lib/db/seed-dev-admin.ts) does **not** read Netlify `CONTEXT` today — it only checks `VERCEL_ENV` for preview bypass. **This PR does not change seed or auth code.** A future PR may add Netlify-aware seed gating.
+Netlify sets `CONTEXT=deploy-preview` on preview deploys, but seed gating in [`src/lib/db/seed-dev-admin.ts`](../../src/lib/db/seed-dev-admin.ts) does **not** read Netlify `CONTEXT` today — it only checks `VERCEL_ENV` for preview bypass. Prefer seeding from a trusted local/admin shell. A future change may add Netlify-aware seed gating.
 
 Netlify **build/runtime** uses `NODE_ENV=production`. That affects seed behavior if you run seed with production env vars:
 
