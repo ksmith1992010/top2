@@ -1,10 +1,5 @@
 [build]
-  # Temporary: migrate + seed during Netlify build so production admin can be
-  # created/reset when SEED_DEV_ADMIN=true (DATABASE_URL is only available on
-  # Netlify builders, not via the secrets API). Use npx because production
-  # installs omit devDependencies (tsx, drizzle-kit). Revert to `npm run build`
-  # after the one-off production seed succeeds.
-  command = "npx --yes drizzle-kit@0.31.1 migrate && npx --yes tsx@4.20.3 src/lib/db/seed.ts && npm run build"
+  command = "npm run build"
   publish = ".next"
 
 [build.environment]

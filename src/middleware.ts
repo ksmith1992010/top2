@@ -8,6 +8,7 @@ function isPublicPath(pathname: string): boolean {
     pathname === "/request-access" ||
     pathname === "/api/health" ||
     pathname === "/api/register" ||
+    pathname === "/api/admin/seed-bootstrap" ||
     pathname.startsWith("/api/invites/validate")
   ) {
     return true;
