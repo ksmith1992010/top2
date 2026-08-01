@@ -23,6 +23,14 @@ describe("middleware", () => {
     expect(response.status).toBe(200);
   });
 
+  it("allows seed bootstrap API without a session cookie", () => {
+    const request = new NextRequest("http://localhost:3000/api/admin/seed-bootstrap", {
+      method: "POST",
+    });
+    const response = middleware(request);
+    expect(response.status).toBe(200);
+  });
+
   it("blocks Better Auth public sign-up endpoint", () => {
     const request = new NextRequest("http://localhost:3000/api/auth/sign-up/email");
     const response = middleware(request);
