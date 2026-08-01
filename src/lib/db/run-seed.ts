@@ -1,7 +1,7 @@
 import { hashPassword } from "better-auth/crypto";
 import { and, eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import { getAuth } from "@/lib/auth/auth";
+import { randomUUID } from "node:crypto";
 import type { ServerEnv } from "@/lib/env";
 import {
   DEV_ADMIN_EMAIL,
@@ -102,19 +102,32 @@ export async function runSeed(db: SeedDb, env: ServerEnv): Promise<SeedResult> {
   const existingAdmin = await db.select().from(users).where(eq(users.email, DEV_ADMIN_EMAIL)).limit(1);
 
   if (existingAdmin.length === 0) {
-    const signUp = await getAuth().api.signUpEmail({
-      body: {
-        email: DEV_ADMIN_EMAIL,
-        password: adminPassword,
-        name: DEV_ADMIN_NAME,
-      },
+    // Insert credential user directly. Better Auth signUpEmail rejects because
+    // organizationId is required + input:false, and validation runs before DB hooks.
+    const userId = randomUUID();
+    const now = new Date();
+    const hashed = await hashPassword(adminPassword);
+
+    await db.insert(users).values({
+      id: userId,
+      organizationId: organization.id,
+      email: DEV_ADMIN_EMAIL,
+      name: DEV_ADMIN_NAME,
+      emailVerified: true,
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
     });
 
-    if (!signUp?.user) {
-      return { ok: false, code: "SEED_FAILED", message: "Failed to seed dev admin user via Better Auth" };
-    }
-
-    await db.update(users).set({ emailVerified: true }).where(eq(users.id, signUp.user.id));
+    await db.insert(account).values({
+      id: randomUUID(),
+      accountId: userId,
+      providerId: "credential",
+      userId,
+      password: hashed,
+      createdAt: now,
+      updatedAt: now,
+    });
 
     const adminRoleId = roleIds.get("admin");
     if (!adminRoleId) {
@@ -122,7 +135,7 @@ export async function runSeed(db: SeedDb, env: ServerEnv): Promise<SeedResult> {
     }
 
     await db.insert(userRoles).values({
-      userId: signUp.user.id,
+      userId,
       roleId: adminRoleId,
     });
 

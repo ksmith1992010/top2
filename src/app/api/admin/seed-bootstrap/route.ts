@@ -45,18 +45,31 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = await runSeed(getDb(), env);
+  try {
+    const result = await runSeed(getDb(), env);
 
-  if (!result.ok) {
+    if (!result.ok) {
+      return NextResponse.json(
+        { error: { code: result.code, message: result.message } },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      action: result.admin,
+      email: result.email ?? null,
+    });
+  } catch (error) {
+    console.error("seed-bootstrap failed", error);
     return NextResponse.json(
-      { error: { code: result.code, message: result.message } },
+      {
+        error: {
+          code: "SEED_FAILED",
+          message: error instanceof Error ? error.message : "Unexpected seed failure",
+        },
+      },
       { status: 500 },
     );
   }
-
-  return NextResponse.json({
-    ok: true,
-    action: result.admin,
-    email: result.email ?? null,
-  });
 }
