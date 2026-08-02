@@ -16,9 +16,9 @@ export function Sidebar() {
     <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-top-border bg-top-navy md:flex">
       <div className="border-b border-top-border px-4 py-4">
         <p className="text-xs font-medium uppercase tracking-[0.15em] text-top-gold">
-          Over The Top
+          RoofRun
         </p>
-        <p className="text-base font-semibold text-top-text">Restoration CRM</p>
+        <p className="text-base font-semibold text-top-text">Field ops CRM</p>
       </div>
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3" aria-label="Main navigation">
         {APP_NAV_ITEMS.map((item) => {

@@ -13,6 +13,7 @@ export type NavItem = {
   href: string;
   icon: NavIcon;
   description: string;
+  /** Short operator-facing note for modules that are not live yet. */
   comingIn: string;
 };
 
@@ -22,57 +23,57 @@ export const APP_NAV_ITEMS: NavItem[] = [
     label: "Dashboard",
     href: "/",
     icon: "dashboard",
-    description: "Pipeline overview and daily priorities.",
-    comingIn: "PR-004+",
+    description: "Daily priorities for the crew and office.",
+    comingIn: "Overview",
   },
   {
     label: "Leads",
     href: "/leads",
     icon: "leads",
-    description: "Prospects and intake before job creation.",
-    comingIn: "Active",
+    description: "Prospects and intake before a job is created.",
+    comingIn: "Live",
   },
   {
     label: "Jobs",
     href: "/jobs",
     icon: "jobs",
-    description: "Job lifecycle hub — status, timeline, and assignments.",
-    comingIn: "PR-005+",
+    description: "Job lifecycle — status, timeline, and assignments.",
+    comingIn: "Job board",
   },
   {
     label: "Production",
     href: "/production",
     icon: "production",
-    description: "Production board and field execution.",
-    comingIn: "Later PR",
+    description: "Install schedule and field execution.",
+    comingIn: "Installs",
   },
   {
     label: "Calendar",
     href: "/calendar",
     icon: "calendar",
-    description: "Appointments and schedule.",
-    comingIn: "Later PR",
+    description: "Inspections, adjusters, and crew appointments.",
+    comingIn: "Schedule",
   },
   {
     label: "Documents",
     href: "/documents",
     icon: "documents",
     description: "Contracts, photos, and job files.",
-    comingIn: "Later PR",
+    comingIn: "Files",
   },
   {
     label: "Reports",
     href: "/reports",
     icon: "reports",
     description: "KU, CI, and operational reporting.",
-    comingIn: "Later PR",
+    comingIn: "KU / CI",
   },
   {
     label: "Admin",
     href: "/admin",
     icon: "admin",
     description: "Users, roles, and organization settings.",
-    comingIn: "Later PR",
+    comingIn: "Team",
   },
 ];
 

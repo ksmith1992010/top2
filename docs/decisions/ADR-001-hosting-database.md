@@ -134,4 +134,4 @@ Any platform change requires a **new ADR** and a dedicated infrastructure PR —
 
 - [BLUEPRINT.md](../BLUEPRINT.md) — stack and data model
 - [AGENTS.md](../../AGENTS.md) — code addition/deletion rules
-- [PR-002-auth.md](../prs/PR-002-auth.md) — next PR (Better Auth)
+- [PR-002-auth.md](../prs/PR-002-auth.md) — Better Auth (landed)

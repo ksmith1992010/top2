@@ -1,12 +1,14 @@
 # PR-003: App shell and navigation
 
+**Status:** Landed. Leads are live on main (GitHub #8); other sections may still use placeholder pages. Product UI branding is RoofRun; this doc keeps the original T.O.P. shell language for history.
+
 **Branch:** `feat/pr-003-app-shell`  
 **Depends on:** PR-002 (landed on `main` at `a2867d3`)  
-**Blocks:** PR-004 (customers / leads domain)
+**Originally blocked:** customers / leads domain (since landed)
 
 ## Goal
 
-Authenticated mobile-first layout with navigation to placeholder pages — proves the T.O.P. workspace skeleton before CRM domain work.
+Authenticated mobile-first layout with navigation to placeholder pages — proves the workspace skeleton before CRM domain work.
 
 ## Scope
 

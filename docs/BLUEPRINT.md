@@ -2,13 +2,16 @@
 
 **Version:** 0.2 (foundation design + product decisions)  
 **Repo:** [ksmith1992010/top2](https://github.com/ksmith1992010/top2)  
-**Scope:** Design only. No integrations. No v1 code reuse.
+**Scope:** Design reference. No integrations. No v1 code reuse.  
+**Product UI name:** RoofRun · **Internal project name:** T.O.P. v2
+
+**Landed on main (high level):** auth, app shell, invite-only registration, request-access, lead intake (customers/properties/jobs schema). Jobs board, transitions UI, production, documents, and integrations remain future work. See GitHub history for details.
 
 ---
 
 ## Executive summary
 
-T.O.P. CRM v2 is a **job-centric** roofing and storm-restoration CRM. The rebuild replaces an overpatched v1 with a small, explicit architecture: PostgreSQL as the single source of truth, a thin Next.js API layer with **one mutation path per business action**, and an append-only **activity timeline** for every important event.
+T.O.P. CRM v2 is a **job-centric** roofing and storm-restoration CRM (product UI: RoofRun). The rebuild replaces an overpatched v1 with a small, explicit architecture: PostgreSQL as the single source of truth, a thin Next.js API layer with **one mutation path per business action**, and an append-only **activity timeline** for every important event.
 
 **Job** is the hub. Customers own properties; properties have jobs; jobs move through a 13-stage lifecycle. KU (qualified inspection/opportunity) and CI (claim initiated) are **reportable business events**, not status hacks.
 

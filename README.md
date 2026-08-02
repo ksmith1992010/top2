@@ -1,10 +1,12 @@
 # T.O.P. CRM v2
 
-Clean rebuild of the Over The Top Restoration CRM — roofing and storm-restoration lifecycle from lead to closeout.
+Clean rebuild of the Over The Top Restoration CRM. Product UI name: **RoofRun** — run every roof from lead to paid.
 
 ## Status
 
-**PR-002 auth** — Better Auth login, sessions, roles. See [docs/prs/PR-002-auth.md](./docs/prs/PR-002-auth.md).
+**Live on main:** Better Auth login/sessions/roles, dark app shell, invite-only registration, public request-access page, and lead intake (customers / properties / jobs schema). Jobs board, production, calendar, documents, and reports are still placeholders.
+
+Engineering history: [docs/prs/](./docs/prs/) · product plan: [docs/BLUEPRINT.md](./docs/BLUEPRINT.md).
 
 ## Local setup
 
@@ -36,22 +38,20 @@ Auth protects the app, so deploy previews require login.
 | Email | `admin@example.com` |
 | Password | `password12345` |
 
-Seed command (uses Better Auth sign-up — same password hashing as normal users):
-
 ```bash
 export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/top2
 npm run db:migrate
 npm run db:seed
 ```
 
-**Deploy preview database:** not seeded automatically on deploy. After pointing at a preview database, run `db:migrate` and `db:seed` manually from your local dev shell. See [docs/deploy/netlify.md](./docs/deploy/netlify.md) for Netlify-specific seed gating caveats. Vercel preview deploys (`VERCEL_ENV=preview`) also allow the dev admin seed with the default password; production deploys skip it unless `SEED_DEV_ADMIN=true` **and** `SEED_ADMIN_PASSWORD` is set to a non-default value.
+**Deploy preview database:** not seeded automatically on deploy. After pointing at a preview database, run `db:migrate` and `db:seed` manually from your local dev shell. See [docs/deploy/netlify.md](./docs/deploy/netlify.md). Production never uses the default preview password — set `SEED_DEV_ADMIN=true` and a non-default `SEED_ADMIN_PASSWORD` only when an operator intentionally seeds production.
 
 **If login fails in preview:**
 
 1. Confirm migrations ran against the preview `DATABASE_URL`
 2. Run `npm run db:seed` against that database
-3. Set `BETTER_AUTH_URL` to the preview URL (e.g. `https://deploy-preview-123--top2.netlify.app`)
-4. Confirm the user exists: seed logs should mention `admin@example.com`
+3. Set `BETTER_AUTH_URL` to the preview URL
+4. Confirm seed logs mention `admin@example.com`
 
 These credentials are for development/preview review only — not a production backdoor.
 
@@ -60,12 +60,10 @@ These credentials are for development/preview review only — not a production b
 | Document | Purpose |
 |----------|---------|
 | [docs/BLUEPRINT.md](./docs/BLUEPRINT.md) | Stack, data model, API, UI, build sequence, risks |
-| [docs/API.md](./docs/API.md) | API route reference |
-| [docs/schema.sql](./docs/schema.sql) | Forward-looking reference schema (applied changes ship via Drizzle migrations per PR) |
-| [docs/prs/PR-001-scaffold.md](./docs/prs/PR-001-scaffold.md) | First PR spec |
-| [docs/prs/PR-002-auth.md](./docs/prs/PR-002-auth.md) | Second PR spec |
-| [docs/prs/PR-003-app-shell.md](./docs/prs/PR-003-app-shell.md) | Third PR spec |
-| [docs/deploy/netlify.md](./docs/deploy/netlify.md) | Netlify deployment, preview env vars, and seed caveats |
+| [docs/API.md](./docs/API.md) | API route reference (implemented + planned) |
+| [docs/schema.sql](./docs/schema.sql) | Forward-looking reference schema (applied changes ship via Drizzle migrations) |
+| [docs/prs/](./docs/prs/) | Historical PR specs (PR-001–003) |
+| [docs/deploy/netlify.md](./docs/deploy/netlify.md) | Netlify deployment, preview env vars, seed caveats |
 | [docs/decisions/ADR-001-hosting-database.md](./docs/decisions/ADR-001-hosting-database.md) | Hosting and database decisions |
 | [AGENTS.md](./AGENTS.md) | Rules for humans and AI agents working in this repo |
 
@@ -80,6 +78,6 @@ These credentials are for development/preview review only — not a production b
 
 Lead → Inspection Scheduled → Inspection Complete → Claim Filed → Adjuster Meeting Scheduled → Approved → Contract Signed → Material Ordered → Production Scheduled → Installed → Invoiced → Paid → Closed
 
-## First 3 PRs
+## Early PRs (landed)
 
-See [docs/BLUEPRINT.md#first-3-prs](./docs/BLUEPRINT.md#first-3-prs).
+Scaffold, auth, and app shell: [docs/BLUEPRINT.md#first-3-prs](./docs/BLUEPRINT.md#first-3-prs). Later merges on main added invite-only registration, request-access, and lead intake — see GitHub history for #8–#10.
