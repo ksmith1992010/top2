@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
 import { closeDb, getDb } from "@/lib/db";
 import { customers, jobs, organizations, properties } from "@/lib/db/schema";
+import { getCustomerDetail } from "@/domain/queries/get-customer-detail";
 import { getJobDetail } from "@/domain/queries/get-job-detail";
 import { listJobs } from "@/domain/queries/list-jobs";
+import { MAX_JOB_SEARCH_LENGTH, normalizeJobSearch } from "@/lib/job-search";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
@@ -84,6 +86,45 @@ describe.skipIf(!hasDatabase)("jobs queries", () => {
     });
     expect(statusFiltered.items.map((item) => item.id)).toContain(jobB.id);
     expect(statusFiltered.items.every((item) => item.status === "claim_filed")).toBe(true);
+
+    const longSearch = `Roof ${"x".repeat(MAX_JOB_SEARCH_LENGTH)}`;
+    expect(normalizeJobSearch(longSearch)?.length).toBe(MAX_JOB_SEARCH_LENGTH);
+    const longListed = await listJobs({ organizationId: orgA.id, search: longSearch });
+    expect(Array.isArray(longListed.items)).toBe(true);
+    expect(listedA.total).toBeGreaterThanOrEqual(1);
+
+    const leadForOrgA = await getCustomerDetail({
+      customerId: customer.id,
+      organizationId: orgA.id,
+    });
+    expect(leadForOrgA?.latestJob?.id).toBe(jobA.id);
+
+    const leadForOrgB = await getCustomerDetail({
+      customerId: customer.id,
+      organizationId: orgB.id,
+    });
+    expect(leadForOrgB?.latestJob?.id).toBe(jobB.id);
+    expect(leadForOrgB?.latestJob?.id).not.toBe(jobA.id);
+
+    await db
+      .update(jobs)
+      .set({ deletedAt: new Date() })
+      .where(eq(jobs.id, jobA.id));
+
+    const afterSoftDelete = await listJobs({ organizationId: orgA.id });
+    expect(afterSoftDelete.items.map((item) => item.id)).not.toContain(jobA.id);
+
+    const softDeletedDetail = await getJobDetail({
+      jobId: jobA.id,
+      organizationId: orgA.id,
+    });
+    expect(softDeletedDetail).toBeNull();
+
+    const leadAfterSoftDelete = await getCustomerDetail({
+      customerId: customer.id,
+      organizationId: orgA.id,
+    });
+    expect(leadAfterSoftDelete?.latestJob).toBeNull();
 
     await db.delete(jobs).where(eq(jobs.id, jobA.id));
     await db.delete(jobs).where(eq(jobs.id, jobB.id));

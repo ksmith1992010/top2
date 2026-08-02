@@ -3,25 +3,27 @@ import { Suspense } from "react";
 import { JobsFilters } from "@/components/jobs/jobs-filters";
 import { listJobs } from "@/domain/queries/list-jobs";
 import { requirePagePermission } from "@/lib/auth/api-auth";
-import { JOB_STATUS_LABELS, JOB_STATUSES, type JobStatus } from "@/lib/db/schema/enums";
+import { JOB_STATUS_LABELS } from "@/lib/db/schema/enums";
+import { resolveJobStatus } from "@/lib/job-status";
 
 type JobsPageProps = {
   searchParams: Promise<{ search?: string; status?: string }>;
 };
 
-function resolveStatus(status: string | undefined): JobStatus | undefined {
-  if (!status) {
-    return undefined;
+function jobsCountLabel(visible: number, total: number): string {
+  if (total === 0) {
+    return "0 jobs";
   }
-  return (JOB_STATUSES as readonly string[]).includes(status)
-    ? (status as JobStatus)
-    : undefined;
+  if (visible >= total) {
+    return `Showing ${total} job${total === 1 ? "" : "s"}`;
+  }
+  return `Showing ${visible} of ${total} jobs`;
 }
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
   const auth = await requirePagePermission("jobs:read");
   const { search, status: statusParam } = await searchParams;
-  const status = resolveStatus(statusParam);
+  const status = resolveJobStatus(statusParam);
 
   const { items, total } = await listJobs({
     organizationId: auth.organizationId,
@@ -35,7 +37,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
         <p className="text-xs font-medium uppercase tracking-wide text-top-gold">Operations</p>
         <h1 className="mt-1 text-2xl font-semibold text-top-text">Jobs</h1>
         <p className="mt-2 text-sm text-top-muted">
-          {total} job{total === 1 ? "" : "s"} · run every roof from lead to paid
+          {jobsCountLabel(items.length, total)} · run every roof from lead to paid
         </p>
       </div>
 

@@ -14,7 +14,10 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 
   const { id } = await context.params;
-  const customer = await getCustomerDetail(id);
+  const customer = await getCustomerDetail({
+    customerId: id,
+    organizationId: auth.organizationId,
+  });
 
   if (!customer) {
     return NextResponse.json(
