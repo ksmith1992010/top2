@@ -79,7 +79,7 @@ Activity: `customer.created`
 | POST | `/jobs/:id/participants` | `jobs:update` | Assign participant role |
 | DELETE | `/jobs/:id/participants/:participantId` | `jobs:update` | Unassign (soft) |
 | POST | `/jobs/:id/events` | `job_events:create` | KU, CI |
-| GET | `/jobs/:id/timeline` | `jobs:read` | Activity feed |
+| GET | `/jobs/:id/timeline` | `jobs:read` | Activity feed (UI live via job detail query; REST route planned) |
 | POST | `/jobs/:id/communications` | `jobs:update` | Manual comm log |
 
 **POST /jobs**
