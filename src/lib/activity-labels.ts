@@ -1,4 +1,4 @@
-import { JOB_STATUS_LABELS, type JobStatus } from "@/lib/db/schema/enums";
+import { JOB_STATUS_LABELS } from "@/lib/db/schema/enums";
 import { resolveJobStatus } from "@/lib/job-status";
 
 function asRecord(payload: unknown): Record<string, unknown> {
@@ -13,7 +13,7 @@ function statusLabel(value: unknown): string {
     return "Unknown";
   }
   const status = resolveJobStatus(value);
-  return status ? JOB_STATUS_LABELS[status as JobStatus] : value;
+  return status ? JOB_STATUS_LABELS[status] : value;
 }
 
 /** Human-readable summary for a known activity event. Never dumps raw payload. */
