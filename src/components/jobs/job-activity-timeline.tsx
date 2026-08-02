@@ -25,7 +25,7 @@ export function JobActivityTimeline({ items, total }: JobActivityTimelineProps) 
 
       {items.length === 0 ? (
         <p className="mt-4 text-sm text-top-muted">
-          Status changes and lead updates will show here.
+          Status changes and other job-linked events will show here.
         </p>
       ) : (
         <ol className="mt-4 space-y-4">

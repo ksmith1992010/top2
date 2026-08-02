@@ -14,7 +14,7 @@ import {
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
 describe.skipIf(!hasDatabase)("listJobActivity", () => {
-  it("returns org-scoped timeline with job and customer-level events", async () => {
+  it("returns org-scoped job-linked timeline only", async () => {
     const db = getDb();
     const stamp = Date.now();
 
@@ -127,17 +127,18 @@ describe.skipIf(!hasDatabase)("listJobActivity", () => {
     });
 
     expect(timeline).not.toBeNull();
-    expect(timeline?.total).toBe(3);
+    expect(timeline?.total).toBe(2);
     expect(timeline?.items.map((item) => item.eventType)).toEqual([
-      "customer.updated",
       "job.status_changed",
       "customer.created",
     ]);
-    expect(timeline?.items[1]?.summary).toBe(
+    expect(timeline?.items.map((item) => item.eventType)).not.toContain("customer.updated");
+    expect(timeline?.items[0]?.summary).toBe(
       "Status changed from New Lead to Inspection Scheduled",
     );
     expect(timeline?.items.every((item) => item.actorName === "Timeline Actor")).toBe(true);
     expect(JSON.stringify(timeline)).not.toContain("approved");
+    expect(JSON.stringify(timeline)).not.toContain("Customer details updated");
 
     const crossOrg = await listJobActivity({
       jobId: jobB.id,

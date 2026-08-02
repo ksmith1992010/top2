@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, or, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { formatActivitySummary } from "@/lib/activity-labels";
 import { getDb } from "@/lib/db";
 import { activityEvents, jobs, properties, users } from "@/lib/db/schema";
@@ -27,8 +27,8 @@ export type ListJobActivityResult = {
 };
 
 /**
- * Org-scoped job timeline. Includes job-linked events and customer-level
- * events (jobId null) for the job's customer — e.g. customer.updated.
+ * Org-scoped job timeline. Job-linked events only (`activity_events.job_id`).
+ * Customer-level (`jobId` null) events are deferred until activity has explicit org scoping.
  */
 export async function listJobActivity(
   input: ListJobActivityInput,
@@ -40,10 +40,7 @@ export async function listJobActivity(
   );
 
   const [job] = await db
-    .select({
-      id: jobs.id,
-      customerId: properties.customerId,
-    })
+    .select({ id: jobs.id })
     .from(jobs)
     .innerJoin(properties, eq(properties.id, jobs.propertyId))
     .where(
@@ -60,10 +57,7 @@ export async function listJobActivity(
     return null;
   }
 
-  const scope = or(
-    eq(activityEvents.jobId, job.id),
-    and(eq(activityEvents.customerId, job.customerId), isNull(activityEvents.jobId)),
-  );
+  const scope = eq(activityEvents.jobId, job.id);
 
   const [countRow] = await db
     .select({ count: sql<number>`count(*)::int` })
