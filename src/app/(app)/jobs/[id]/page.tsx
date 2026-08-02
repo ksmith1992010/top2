@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { JobStatusForm } from "@/components/jobs/job-status-form";
 import { getJobDetail } from "@/domain/queries/get-job-detail";
 import { requirePagePermission } from "@/lib/auth/api-auth";
+import { getUserPermissions } from "@/lib/auth/roles";
 import { JOB_STATUS_LABELS } from "@/lib/db/schema/enums";
+import { hasPermission } from "@/lib/permissions";
 
 type JobDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -25,6 +28,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
   if (!job) {
     notFound();
   }
+
+  const permissions = await getUserPermissions(auth.userId);
+  const canTransition = hasPermission(permissions, "jobs:transition");
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 md:px-8 md:py-8">
@@ -118,10 +124,19 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
           </p>
         </section>
 
-        <PlaceholderSection
-          title="Pipeline"
-          note="Pipeline controls are coming in a later PR."
-        />
+        {canTransition ? (
+          <section className="command-card">
+            <h2 className="text-sm font-medium text-top-text">Pipeline</h2>
+            <div className="mt-4">
+              <JobStatusForm key={job.status} jobId={job.id} currentStatus={job.status} />
+            </div>
+          </section>
+        ) : (
+          <PlaceholderSection
+            title="Pipeline"
+            note="You can view this job stage, but status updates require transition permission."
+          />
+        )}
         <PlaceholderSection
           title="Activity"
           note="Timeline events show here once job updates are logged."

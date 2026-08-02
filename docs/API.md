@@ -66,7 +66,7 @@ Activity: `customer.created`
 
 ## Jobs
 
-**Status:** Read UI live via server pages `/jobs` and `/jobs/[id]` (`jobs:read`, org-scoped queries). REST write/transition routes below remain planned. Jobs are also created during lead intake (`POST /api/customers`).
+**Status:** Read UI live via server pages `/jobs` and `/jobs/[id]` (`jobs:read`, org-scoped queries). Status updates live via `PATCH /api/jobs/:id/status` (`jobs:transition`). Other REST write routes below remain planned. Jobs are also created during lead intake (`POST /api/customers`).
 
 | Method | Path | Permission | Notes |
 |--------|------|------------|-------|
@@ -74,7 +74,8 @@ Activity: `customer.created`
 | POST | `/jobs` | `jobs:create` | Creates with `status=lead`; generates `TOP-YYYY-####` |
 | GET | `/jobs/:id` | `jobs:read` | Detail; lookup by UUID or job number |
 | PATCH | `/jobs/:id` | `jobs:update` | notes, leadSource, jobType — **not status** |
-| POST | `/jobs/:id/transition` | `jobs:transition` | **Only status changes** |
+| PATCH | `/jobs/:id/status` | `jobs:transition` | **Only status changes** (foundation; skip-rule engine later) |
+| POST | `/jobs/:id/transition` | `jobs:transition` | Planned alias / richer transition body |
 | POST | `/jobs/:id/participants` | `jobs:update` | Assign participant role |
 | DELETE | `/jobs/:id/participants/:participantId` | `jobs:update` | Unassign (soft) |
 | POST | `/jobs/:id/events` | `job_events:create` | KU, CI |
