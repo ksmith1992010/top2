@@ -124,7 +124,14 @@ export default async function CustomerDetailPage({
                 <dl className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <dt className="text-xs text-top-muted">Job number</dt>
-                    <dd className="mt-1 text-sm font-medium">{customer.latestJob.jobNumber}</dd>
+                    <dd className="mt-1 text-sm font-medium">
+                      <Link
+                        href={`/jobs/${customer.latestJob.id}`}
+                        className="text-top-navy hover:underline"
+                      >
+                        {customer.latestJob.jobNumber}
+                      </Link>
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-xs text-top-muted">Status</dt>
