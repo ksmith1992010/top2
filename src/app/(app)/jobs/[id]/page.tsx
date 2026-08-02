@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { JobActivityTimeline } from "@/components/jobs/job-activity-timeline";
 import { JobStatusForm } from "@/components/jobs/job-status-form";
+import { listJobActivity } from "@/domain/queries/list-job-activity";
 import { getJobDetail } from "@/domain/queries/get-job-detail";
 import { requirePagePermission } from "@/lib/auth/api-auth";
 import { getUserPermissions } from "@/lib/auth/roles";
@@ -31,6 +33,10 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
   const permissions = await getUserPermissions(auth.userId);
   const canTransition = hasPermission(permissions, "jobs:transition");
+  const activity = await listJobActivity({
+    jobId: job.id,
+    organizationId: auth.organizationId,
+  });
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 md:px-8 md:py-8">
@@ -137,9 +143,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             note="You can view this job stage, but status updates require transition permission."
           />
         )}
-        <PlaceholderSection
-          title="Activity"
-          note="Timeline events show here once job updates are logged."
+        <JobActivityTimeline
+          items={activity?.items ?? []}
+          total={activity?.total ?? 0}
         />
         <PlaceholderSection
           title="Documents & photos"
