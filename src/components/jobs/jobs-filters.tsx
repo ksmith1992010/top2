@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { JOB_STATUSES, JOB_STATUS_LABELS, type JobStatus } from "@/lib/db/schema/enums";
+import { MAX_JOB_SEARCH_LENGTH } from "@/lib/job-search";
 
 type JobsFiltersProps = {
   initialSearch: string;
@@ -17,8 +18,9 @@ export function JobsFilters({ initialSearch, initialStatus }: JobsFiltersProps) 
 
   function applyFilters(nextSearch: string, nextStatus: string) {
     const params = new URLSearchParams(searchParams.toString());
-    if (nextSearch.trim()) {
-      params.set("search", nextSearch.trim());
+    const capped = nextSearch.trim().slice(0, MAX_JOB_SEARCH_LENGTH);
+    if (capped) {
+      params.set("search", capped);
     } else {
       params.delete("search");
     }
@@ -41,7 +43,8 @@ export function JobsFilters({ initialSearch, initialStatus }: JobsFiltersProps) 
       <input
         type="search"
         value={search}
-        onChange={(event) => setSearch(event.target.value)}
+        onChange={(event) => setSearch(event.target.value.slice(0, MAX_JOB_SEARCH_LENGTH))}
+        maxLength={MAX_JOB_SEARCH_LENGTH}
         placeholder="Search job #, customer, or address"
         className="w-full max-w-md rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-sm text-top-text"
       />

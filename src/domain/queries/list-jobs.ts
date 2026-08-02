@@ -7,7 +7,12 @@ import {
   properties,
   users,
 } from "@/lib/db/schema";
-import { JOB_STATUSES, type JobStatus } from "@/lib/db/schema/enums";
+import type { JobStatus } from "@/lib/db/schema/enums";
+import { normalizeJobSearch } from "@/lib/job-search";
+import { resolveJobStatus } from "@/lib/job-status";
+
+export const DEFAULT_JOB_LIST_LIMIT = 50;
+export const MAX_JOB_LIST_LIMIT = 100;
 
 export type JobListItem = {
   id: string;
@@ -29,29 +34,22 @@ export type JobListItem = {
 export type ListJobsInput = {
   organizationId: string;
   search?: string;
-  status?: JobStatus;
+  status?: string;
   limit?: number;
   offset?: number;
 };
 
-function resolveStatus(status: string | undefined): JobStatus | undefined {
-  if (!status) {
-    return undefined;
-  }
-  return (JOB_STATUSES as readonly string[]).includes(status)
-    ? (status as JobStatus)
-    : undefined;
-}
-
 export async function listJobs(input: ListJobsInput): Promise<{
   items: JobListItem[];
   total: number;
+  limit: number;
+  offset: number;
 }> {
   const db = getDb();
-  const limit = Math.min(input.limit ?? 50, 100);
-  const offset = input.offset ?? 0;
-  const search = input.search?.trim();
-  const status = resolveStatus(input.status);
+  const limit = Math.min(Math.max(input.limit ?? DEFAULT_JOB_LIST_LIMIT, 1), MAX_JOB_LIST_LIMIT);
+  const offset = Math.max(input.offset ?? 0, 0);
+  const search = normalizeJobSearch(input.search);
+  const status = resolveJobStatus(input.status);
 
   const salesOwner = db
     .select({
@@ -150,5 +148,7 @@ export async function listJobs(input: ListJobsInput): Promise<{
       salesOwnerName: row.salesOwnerName,
     })),
     total: countRow?.count ?? 0,
+    limit,
+    offset,
   };
 }

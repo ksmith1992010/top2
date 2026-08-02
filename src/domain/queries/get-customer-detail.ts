@@ -29,8 +29,16 @@ export type CustomerDetail = {
   } | null;
 };
 
-export async function getCustomerDetail(customerId: string): Promise<CustomerDetail | null> {
+export type GetCustomerDetailInput = {
+  customerId: string;
+  organizationId: string;
+};
+
+export async function getCustomerDetail(
+  input: GetCustomerDetailInput,
+): Promise<CustomerDetail | null> {
   const db = getDb();
+  const { customerId, organizationId } = input;
 
   const [customer] = await db
     .select()
@@ -66,7 +74,13 @@ export async function getCustomerDetail(customerId: string): Promise<CustomerDet
         leadSource: jobs.leadSource,
       })
       .from(jobs)
-      .where(and(eq(jobs.propertyId, primaryProperty.id), isNull(jobs.deletedAt)))
+      .where(
+        and(
+          eq(jobs.propertyId, primaryProperty.id),
+          eq(jobs.organizationId, organizationId),
+          isNull(jobs.deletedAt),
+        ),
+      )
       .orderBy(desc(jobs.createdAt))
       .limit(1);
 

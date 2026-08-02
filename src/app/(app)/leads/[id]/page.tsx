@@ -23,11 +23,14 @@ export default async function CustomerDetailPage({
   params,
   searchParams,
 }: CustomerDetailPageProps) {
-  await requirePagePermission("customers:read");
+  const auth = await requirePagePermission("customers:read");
 
   const { id } = await params;
   const { edit } = await searchParams;
-  const customer = await getCustomerDetail(id);
+  const customer = await getCustomerDetail({
+    customerId: id,
+    organizationId: auth.organizationId,
+  });
 
   if (!customer) {
     notFound();
