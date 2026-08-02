@@ -4,7 +4,7 @@ Clean rebuild of the Over The Top Restoration CRM. Product UI name: **RoofRun** 
 
 ## Status
 
-**Live on main:** Better Auth login/sessions/roles, dark app shell, invite-only registration, public request-access page, and lead intake (customers / properties / jobs schema). Jobs board, production, calendar, documents, and reports are still placeholders.
+**Live on main:** Better Auth login/sessions/roles, dark app shell, invite-only registration, public request-access page, lead intake, and read-only jobs list/detail. Production, calendar, documents, reports, and job pipeline transitions are still placeholders.
 
 Engineering history: [docs/prs/](./docs/prs/) · product plan: [docs/BLUEPRINT.md](./docs/BLUEPRINT.md).
 

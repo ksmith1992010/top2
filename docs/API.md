@@ -27,6 +27,7 @@ Full design rationale: [BLUEPRINT.md](./BLUEPRINT.md#4-api-design).
 | GET | `/api/invites/validate` | Validate invite token |
 | POST | `/api/register` | Invite-only signup |
 | POST | `/api/admin/users` | Stub `501` |
+| — | `/jobs`, `/jobs/[id]` | Server pages (not REST); org-scoped job reads |
 
 ---
 
@@ -65,7 +66,7 @@ Activity: `customer.created`
 
 ## Jobs
 
-**Status:** Planned — job rows exist from lead intake; list/detail/transition APIs are not live yet.
+**Status:** Read UI live via server pages `/jobs` and `/jobs/[id]` (`jobs:read`, org-scoped queries). REST write/transition routes below remain planned. Jobs are also created during lead intake (`POST /api/customers`).
 
 | Method | Path | Permission | Notes |
 |--------|------|------------|-------|
