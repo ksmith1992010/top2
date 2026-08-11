@@ -4,9 +4,9 @@ Clean rebuild of the Over The Top Restoration CRM. Product UI name: **RoofRun** 
 
 ## Status
 
-**Live on main:** Better Auth login/sessions/roles, dark app shell, invite-only registration, public request-access page, lead intake, and read-only jobs list/detail. Production, calendar, documents, reports, and job pipeline transitions are still placeholders.
+**Live on main:** Better Auth login/sessions/roles, dark app shell, invite-only registration, public request-access page, lead intake, jobs list/detail, job status transitions, and the job activity timeline. Pipeline board, production, calendar, documents, materials, payments, and reports are still placeholders.
 
-Engineering history: [docs/prs/](./docs/prs/) · product plan: [docs/BLUEPRINT.md](./docs/BLUEPRINT.md).
+What's next: [docs/ROADMAP.md](./docs/ROADMAP.md) · engineering history: [docs/prs/](./docs/prs/) · product plan: [docs/BLUEPRINT.md](./docs/BLUEPRINT.md).
 
 ## Local setup
 
@@ -59,6 +59,7 @@ These credentials are for development/preview review only — not a production b
 
 | Document | Purpose |
 |----------|---------|
+| [docs/ROADMAP.md](./docs/ROADMAP.md) | Current state and the PR-sized plan from here |
 | [docs/BLUEPRINT.md](./docs/BLUEPRINT.md) | Stack, data model, API, UI, build sequence, risks |
 | [docs/API.md](./docs/API.md) | API route reference (implemented + planned) |
 | [docs/schema.sql](./docs/schema.sql) | Forward-looking reference schema (applied changes ship via Drizzle migrations) |
