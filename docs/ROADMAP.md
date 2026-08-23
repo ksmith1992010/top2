@@ -255,3 +255,4 @@ PR-008 has already merged, so it drops off the list and PR-010b takes the open s
 | Pipeline board | Next major UI step |
 | Insurance claim data | Own table (`claims`), not columns on `jobs` |
 | Job assignment | `job_participants` rows, not columns on `jobs` |
+| Roof type | Enum-backed (`shingle`, `metal`, `tile`, `flat_tpo`, `flat_epdm`, `other`), not free text |

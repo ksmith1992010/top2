@@ -29,12 +29,12 @@ Insurance claim facts stay out of `jobs` because [BLUEPRINT.md](../BLUEPRINT.md)
 ## Scope
 
 - Migration `0005_roofing_job_fields.sql`: add two nullable columns to `jobs`
-  - `roof_type` — new `roof_type` enum, or `text` if the value set is not settled
+  - `roof_type` — nullable, backed by a new `roof_type` enum (`shingle`, `metal`, `tile`, `flat_tpo`, `flat_epdm`, `other`)
   - `mortgage_company_involved` — `boolean NOT NULL DEFAULT false`
-- Drizzle schema update in `src/lib/db/schema/jobs.ts` (+ enum in `enums.ts` if enum-backed)
+- Drizzle schema update in `src/lib/db/schema/jobs.ts`, with `roofTypeEnum` added to `enums.ts`
 - Extend `getJobDetail` to return the new columns plus existing `leadSource` and `stormDate`
 - Job detail page: render the four fields in a "Job details" block
-- Display labels for roof type, matching the `JOB_STATUS_LABELS` pattern — display only, never stored
+- `ROOF_TYPE_LABELS` for display, matching the `JOB_STATUS_LABELS` pattern — display only, never stored
 
 ## Out of scope — must NOT touch
 
@@ -46,9 +46,12 @@ Insurance claim facts stay out of `jobs` because [BLUEPRINT.md](../BLUEPRINT.md)
 - Auth, invites, MCP hub, integrations
 - Backfilling or inferring values for existing rows
 
-## Open question to settle before coding
+## Settled decisions
 
-Is `roof_type` a fixed list (`shingle`, `metal`, `tile`, `flat_tpo`, `flat_epdm`, `other`) or free text? Enum is cleaner for the PR-017 reporting cut; text is cheaper to change. Recommend enum with `other`, since reporting by roof type is a stated goal.
+- **`roof_type` is enum-backed** — a new `roof_type` Postgres enum (`shingle`, `metal`, `tile`, `flat_tpo`, `flat_epdm`, `other`), not free text. Chosen so the PR-017 reporting cut can group by roof type without normalizing strings after the fact. Adding a value later is an enum migration; `other` absorbs the tail in the meantime.
+- **Scope reduction approved** — only `roof_type` and `mortgage_company_involved` are new columns; `lead_source` and `storm_date` are surfaced, not duplicated.
+- **Claims split to PR-010b approved** — claim number, carrier, and deductible land in the `claims` table.
+- **Assignments via `job_participants` approved** — sales rep and closer are PR-011, not columns on `jobs`.
 
 ## Acceptance test
 
@@ -66,4 +69,4 @@ Is `roof_type` a fixed list (`shingle`, `metal`, `tile`, `flat_tpo`, `flat_epdm`
 
 ## Rollback
 
-Revert the app commit; the migration is additive and safe to leave in place. To fully unwind, drop the two columns (and the `roof_type` enum type if created). No data loss — nothing writes these fields in this PR.
+Revert the app commit; the migration is additive and safe to leave in place. To fully unwind, drop the two columns, then the `roof_type` enum type. No data loss — nothing writes these fields in this PR.
