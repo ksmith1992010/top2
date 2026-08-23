@@ -10,7 +10,8 @@ Show jobs grouped by stage on `/jobs/board` using existing statuses and labels.
 
 ## Scope
 
-- Org-scoped `listJobsBoard` query (counts + per-column newest jobs)
+- Org-scoped `listJobsBoard` query — every live job, grouped by status, no per-column cap
+- Deterministic card order: `updated_at DESC`, `id DESC` as tie-breaker
 - Horizontal pipeline board UI
 - List / Board toggle on jobs pages
 - Links into existing job detail (status changes stay on detail)

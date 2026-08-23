@@ -1,4 +1,4 @@
-import { and, eq, isNull, lte, sql } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { customers, jobs, properties } from "@/lib/db/schema";
 import {
@@ -6,9 +6,6 @@ import {
   JOB_STATUSES,
   type JobStatus,
 } from "@/lib/db/schema/enums";
-
-export const DEFAULT_BOARD_COLUMN_LIMIT = 15;
-export const MAX_BOARD_COLUMN_LIMIT = 30;
 
 export type BoardJobItem = {
   id: string;
@@ -29,53 +26,24 @@ export type BoardColumn = {
 
 export type ListJobsBoardInput = {
   organizationId: string;
-  perColumnLimit?: number;
 };
 
 export type ListJobsBoardResult = {
   columns: BoardColumn[];
-  visibleCount: number;
   totalJobs: number;
-  perColumnLimit: number;
 };
 
 /**
- * Org-scoped pipeline board data. Read-only; groups jobs by canonical status.
- * Loads up to `perColumnLimit` newest jobs per status (windowed), not an unbounded set.
+ * Org-scoped pipeline board data. Read-only; groups every live job by canonical
+ * status. Cards are newest-first (`updated_at desc`), with `id desc` as a stable
+ * tie-breaker so equal timestamps never reorder between renders.
  */
 export async function listJobsBoard(
   input: ListJobsBoardInput,
 ): Promise<ListJobsBoardResult> {
   const db = getDb();
-  const perColumnLimit = Math.min(
-    Math.max(input.perColumnLimit ?? DEFAULT_BOARD_COLUMN_LIMIT, 1),
-    MAX_BOARD_COLUMN_LIMIT,
-  );
 
-  const filters = and(
-    eq(jobs.organizationId, input.organizationId),
-    isNull(jobs.deletedAt),
-    isNull(properties.deletedAt),
-    isNull(customers.deletedAt),
-  );
-
-  const countRows = await db
-    .select({
-      status: jobs.status,
-      count: sql<number>`count(*)::int`,
-    })
-    .from(jobs)
-    .innerJoin(properties, eq(properties.id, jobs.propertyId))
-    .innerJoin(customers, eq(customers.id, properties.customerId))
-    .where(filters)
-    .groupBy(jobs.status);
-
-  const totals = new Map<JobStatus, number>();
-  for (const row of countRows) {
-    totals.set(row.status, row.count);
-  }
-
-  const ranked = db
+  const rows = await db
     .select({
       id: jobs.id,
       jobNumber: jobs.jobNumber,
@@ -85,29 +53,19 @@ export async function listJobsBoard(
       city: properties.city,
       state: properties.state,
       updatedAt: jobs.updatedAt,
-      rn: sql<number>`row_number() over (partition by ${jobs.status} order by ${jobs.updatedAt} desc)`.as(
-        "rn",
-      ),
     })
     .from(jobs)
     .innerJoin(properties, eq(properties.id, jobs.propertyId))
     .innerJoin(customers, eq(customers.id, properties.customerId))
-    .where(filters)
-    .as("board_ranked");
-
-  const rows = await db
-    .select({
-      id: ranked.id,
-      jobNumber: ranked.jobNumber,
-      status: ranked.status,
-      customerFirstName: ranked.customerFirstName,
-      customerLastName: ranked.customerLastName,
-      city: ranked.city,
-      state: ranked.state,
-      updatedAt: ranked.updatedAt,
-    })
-    .from(ranked)
-    .where(lte(ranked.rn, perColumnLimit));
+    .where(
+      and(
+        eq(jobs.organizationId, input.organizationId),
+        isNull(jobs.deletedAt),
+        isNull(properties.deletedAt),
+        isNull(customers.deletedAt),
+      ),
+    )
+    .orderBy(desc(jobs.updatedAt), desc(jobs.id));
 
   const byStatus = new Map<JobStatus, BoardJobItem[]>();
   for (const status of JOB_STATUSES) {
@@ -130,20 +88,17 @@ export async function listJobsBoard(
     });
   }
 
-  const columns: BoardColumn[] = JOB_STATUSES.map((status) => ({
-    status,
-    label: JOB_STATUS_LABELS[status],
-    items: byStatus.get(status) ?? [],
-    total: totals.get(status) ?? 0,
-  }));
+  const columns: BoardColumn[] = JOB_STATUSES.map((status) => {
+    const items = byStatus.get(status) ?? [];
+    return {
+      status,
+      label: JOB_STATUS_LABELS[status],
+      items,
+      total: items.length,
+    };
+  });
 
-  const visibleCount = columns.reduce((sum, column) => sum + column.items.length, 0);
   const totalJobs = columns.reduce((sum, column) => sum + column.total, 0);
 
-  return {
-    columns,
-    visibleCount,
-    totalJobs,
-    perColumnLimit,
-  };
+  return { columns, totalJobs };
 }

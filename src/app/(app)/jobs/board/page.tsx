@@ -3,14 +3,11 @@ import { JobsViewToggle } from "@/components/jobs/jobs-view-toggle";
 import { listJobsBoard } from "@/domain/queries/list-jobs-board";
 import { requirePagePermission } from "@/lib/auth/api-auth";
 
-function boardCountLabel(visible: number, total: number): string {
+function boardCountLabel(total: number): string {
   if (total === 0) {
     return "0 jobs";
   }
-  if (visible >= total) {
-    return `${total} job${total === 1 ? "" : "s"} across stages`;
-  }
-  return `Showing ${visible} of ${total} jobs across stages`;
+  return `${total} job${total === 1 ? "" : "s"} across stages`;
 }
 
 export default async function JobsBoardPage() {
@@ -24,7 +21,7 @@ export default async function JobsBoardPage() {
           <p className="text-xs font-medium uppercase tracking-wide text-top-gold">Operations</p>
           <h1 className="mt-1 text-2xl font-semibold text-top-text">Pipeline</h1>
           <p className="mt-2 text-sm text-top-muted">
-            {boardCountLabel(board.visibleCount, board.totalJobs)} · jobs by stage
+            {boardCountLabel(board.totalJobs)} · jobs by stage
           </p>
         </div>
         <JobsViewToggle active="board" />
@@ -56,9 +53,7 @@ export default async function JobsBoardPage() {
                 <p className="mt-0.5 text-xs text-top-muted">
                   {column.total === 0
                     ? "Empty"
-                    : column.items.length >= column.total
-                      ? `${column.total} job${column.total === 1 ? "" : "s"}`
-                      : `${column.items.length} of ${column.total}`}
+                    : `${column.total} job${column.total === 1 ? "" : "s"}`}
                 </p>
               </header>
 
@@ -82,17 +77,6 @@ export default async function JobsBoardPage() {
                   ))
                 )}
               </ul>
-
-              {column.total > column.items.length ? (
-                <div className="border-t border-top-border px-3 py-2">
-                  <Link
-                    href={`/jobs?status=${column.status}`}
-                    className="text-xs text-top-gold hover:underline"
-                  >
-                    View all {column.total} in list
-                  </Link>
-                </div>
-              ) : null}
             </section>
           ))}
         </div>
