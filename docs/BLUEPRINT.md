@@ -628,6 +628,8 @@ Mobile-first: bottom nav on phone; sidebar on `md+`. Touch targets ≥ 44px.
 
 ## 6. Build sequence
 
+> **Superseded for sequencing.** The phase tables below are the original plan and are kept for history. The live plan — current state, shipped PR numbers, and what comes next — is [ROADMAP.md](./ROADMAP.md). This section still governs architecture and data model.
+
 Each PR is independently deployable, tested, and revertible.
 
 ### Phase 0 — Repo foundation (PRs 1–3, detailed below)
