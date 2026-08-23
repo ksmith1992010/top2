@@ -49,11 +49,11 @@ From PR-009 onward, the numbers in this file are the only ones that matter.
 Read-only first. Columns follow the existing `job_status` enum, rendered with the `JOB_STATUS_LABELS` field-friendly names already in `src/lib/db/schema/enums.ts`:
 
 ```text
-Lead
+New Lead
 Inspection Scheduled
 Inspection Complete
 Claim Filed
-Adjuster Meeting
+Adjuster Meeting Scheduled
 Approved
 Contract Signed
 Material Ordered
@@ -68,13 +68,15 @@ Scope:
 
 ```text
 Board grouped by job status
+All jobs shown — no per-column cap
+Deterministic order: updated_at DESC, id DESC
 Counts per column
 Click into job detail
 No drag/drop yet unless very small
 No new status write path — reuse PATCH /api/jobs/[id]/status if any write lands
 ```
 
-Status: draft PR open (GitHub #17, `feat/pr-009-pipeline-board`).
+Status: PR open (GitHub #17, `feat/pr-009-pipeline-board`).
 
 ### PR-010 — Roofing job fields
 

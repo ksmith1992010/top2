@@ -27,7 +27,7 @@ Full design rationale: [BLUEPRINT.md](./BLUEPRINT.md#4-api-design).
 | GET | `/api/invites/validate` | Validate invite token |
 | POST | `/api/register` | Invite-only signup |
 | POST | `/api/admin/users` | Stub `501` |
-| — | `/jobs`, `/jobs/[id]` | Server pages (not REST); org-scoped job reads |
+| — | `/jobs`, `/jobs/board`, `/jobs/[id]` | Server pages (not REST); org-scoped job reads + pipeline board |
 
 ---
 

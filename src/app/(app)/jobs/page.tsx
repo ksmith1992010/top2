@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { JobsFilters } from "@/components/jobs/jobs-filters";
+import { JobsViewToggle } from "@/components/jobs/jobs-view-toggle";
 import { listJobs } from "@/domain/queries/list-jobs";
 import { requirePagePermission } from "@/lib/auth/api-auth";
 import { JOB_STATUS_LABELS } from "@/lib/db/schema/enums";
@@ -33,12 +34,15 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">
-      <div className="mb-6">
-        <p className="text-xs font-medium uppercase tracking-wide text-top-gold">Operations</p>
-        <h1 className="mt-1 text-2xl font-semibold text-top-text">Jobs</h1>
-        <p className="mt-2 text-sm text-top-muted">
-          {jobsCountLabel(items.length, total)} · run every roof from lead to paid
-        </p>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-top-gold">Operations</p>
+          <h1 className="mt-1 text-2xl font-semibold text-top-text">Jobs</h1>
+          <p className="mt-2 text-sm text-top-muted">
+            {jobsCountLabel(items.length, total)} · run every roof from lead to paid
+          </p>
+        </div>
+        <JobsViewToggle active="list" />
       </div>
 
       <Suspense fallback={<div className="h-10" />}>
