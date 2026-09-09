@@ -40,7 +40,7 @@ Lead → CI → ADJ MT → DR → CTR → MO → WO → $ → Closed
 | CTR | Contract signed | "Homeowner signed with us" |
 | MO | Material order | "Materials have been ordered" |
 | WO | Work order | "Production is scheduled" |
-| $ | Invoiced / money collection | "We're collecting ACV, depreciation, deductible, balance" |
+| $ | Money / Collections | "We're collecting ACV, depreciation, deductible, balance" |
 | Closed | Done | "Job is complete and paid/closed" |
 
 Reps do not think in the long internal software statuses. They think in field language. **The database keeps clean canonical values; the UI shows the field labels.** That split is the whole of PR-010a.
@@ -61,7 +61,7 @@ Nine field stages over the existing thirteen `job_status` enum values. No migrat
 | $ | `invoiced`, `paid` |
 | Closed | `closed` |
 
-Two open questions on this mapping are recorded under [Open decisions](#open-decisions) — `paid` sitting in `$`, and `installed` sitting in `WO`.
+`paid` stays in `$` and `installed` stays in `WO` — both settled under [Decisions currently locked](#decisions-currently-locked). `$` is titled **Money / Collections**, not "owed", so a fully-collected job reads correctly in the column.
 
 Because the mapping is many-to-one, every stage also needs a designated **entry status** for the day writes land (moving a card to CI must resolve to exactly one status — `inspection_scheduled`). Entry statuses are defined in the PR-010a spec.
 
@@ -105,8 +105,8 @@ Color and alert **only** when stuck. A calm board means nothing needs attention.
 | Stage | Stuck warning |
 |---|---|
 | Lead | No action in 2 days |
-| CI | No adjuster date after 2 days |
-| ADJ MT | Meeting date passed, no result |
+| CI | Inspection complete but no claim filed after 2 days |
+| ADJ MT | No adjuster date after 2 days, or meeting date passed with no result |
 | DR | Approved but no scope after 12 days |
 | CTR | Scope received but no contract after 2 days |
 | MO | Contract signed but no material order after 1 day |
@@ -196,8 +196,8 @@ From PR-010 onward, the numbers in this file are the only ones that matter. Noth
 
 | Order | PR | Purpose |
 |---|---|---|
-| 1 | PR-010 | Roofing job fields |
-| 2 | PR-010a | Field-friendly pipeline labels |
+| 1 | PR-010a | Field-friendly pipeline labels |
+| 2 | PR-010 | Roofing job fields |
 | 3 | PR-011 | Job assignment foundation |
 | 4 | PR-012 | Homepage rep pipeline cards |
 | 5 | PR-013 | Days in stage, next action, stuck alerts |
@@ -209,7 +209,9 @@ From PR-010 onward, the numbers in this file are the only ones that matter. Noth
 | 11 | PR-018 | Payments / collections |
 | 12 | PR-019 | Reporting dashboard |
 
-Rep cards sit at slot 4 rather than slot 3 because they cannot be built before assignment — see [Open decisions](#open-decisions).
+PR-010a leads: it is the change reps actually feel, it carries no migration, and it fixes the operating language before more structure is built on top of it. PR-010 adds useful data but leaves reps reading software-ish statuses.
+
+Rep cards sit at slot 4 rather than slot 3 because they cannot be built before assignment — see [Decisions currently locked](#decisions-currently-locked).
 
 ---
 
@@ -405,10 +407,16 @@ The open MCP hub draft (GitHub #11) sits in this bucket — it is off the critic
 
 ## Decisions currently locked
 
-| Decision | Current default |
-|----------|-----------------|
+| Decision | Setting |
+|----------|---------|
 | Rep-facing stage names | The nine field stages: Lead, CI, ADJ MT, DR, CTR, MO, WO, `$`, Closed |
 | Internal statuses | Keep the thirteen `job_status` enum values unchanged — labels are a display mapping |
+| Build order | PR-010a leads — language before more fields |
+| `$` column title | **Money / Collections**, not "owed" |
+| `paid` stage | Stays in `$`. The column is titled Money / Collections, so a fully-collected job reads correctly there |
+| `installed` stage | Stays in `WO`. The stuck alert reads "installed but unpaid" on the WO card |
+| Adjuster-date stuck rule | Belongs to **ADJ MT**, not CI — a job waiting on an adjuster date sits at `claim_filed`, which maps to ADJ MT |
+| Rep attribution | `job_participants`, never `jobs.created_by`. Assignment (PR-011) ships before rep cards (PR-012) |
 | Days in stage | Derived from `job.status_changed` activity events, not a new column |
 | Stuck signalling | Color/alert only when stuck; a calm board means nothing needs attention |
 | Status jumps | Free for now — rules land in PR-014 |
@@ -417,21 +425,8 @@ The open MCP hub draft (GitHub #11) sits in this bucket — it is off the critic
 | Insurance claim data | Own table (`claims`), not columns on `jobs` |
 | Job assignment | `job_participants` rows, not columns on `jobs` |
 | Roof type | Enum-backed (`shingle`, `metal`, `tile`, `flat_tpo`, `flat_epdm`, `other`), not free text |
+| Documents / photos | Stays on the roadmap at PR-017 — the DR stage depends on it |
 
-## Open decisions
+### Why rep attribution is locked to `job_participants`
 
-Three items need a call. Each has a working default so nothing is blocked.
-
-**1. Rep cards cannot precede assignment.** The revised order put homepage rep cards before job assignment, but there is no rep on a job today — `job_participants` exists and nothing writes it. The only per-user field on `jobs` is `created_by`, an audit field recording whoever entered the lead, which is wrong the moment office staff enter a lead on a rep's behalf. Building rep cards on `created_by` would ship a dashboard that quietly misattributes jobs.
-*Default taken:* assignment (PR-011) moves ahead of rep cards (PR-012). Rep cards ship one PR later with real data.
-*Alternative if the morning dashboard is urgent:* ship rep cards on `created_by` as an explicit stopgap, labelled "entered by" rather than "rep", and re-point at `job_participants` in PR-011. Not recommended.
-
-**2. `paid` inside the `$` stage.** The mapping puts `invoiced` and `paid` both in `$`. That column then mixes "owes us money" with "fully collected", which works against its own stuck rule — installed but unpaid. A fully-paid job would sit in the collections column looking like work.
-*Default taken:* mapping ships as specified, `$` renders paid jobs in a settled state so the column still reads correctly at a glance.
-*Alternative:* map `paid` to Closed and let `$` mean strictly "money outstanding".
-
-**3. `installed` inside the WO stage.** Same shape. `installed` is the trigger for collections, but it maps to WO, so the "installed but unpaid" alert fires on WO cards rather than `$` cards.
-*Default taken:* the alert lives on WO cards where `status = 'installed'`.
-*Alternative:* map `installed` to `$` so completed roofs move into the money column on install.
-
-**Restored to the roadmap:** documents / photos (PR-017) dropped out of the revised build order, but the DR stage's core fields are "scope received?" and "PDF uploaded", and DR is called out as the biggest stuck point. It is kept, sequenced after production and materials.
+There is no rep on a job today: `job_participants` exists and nothing writes it, and the only per-user column on `jobs` is `created_by`, an audit field recording whoever entered the lead. Building rep cards on `created_by` would give the owner a dashboard that looks right and lies whenever someone enters a lead on a rep's behalf. Assignment lands first; rep cards ship one PR later with real data.

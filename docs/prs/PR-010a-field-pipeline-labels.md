@@ -2,7 +2,7 @@
 
 **Branch:** `feat/pr-010a-field-pipeline-labels`
 **Depends on:** PR-009 pipeline board (merged)
-**Status:** Draft spec — not started
+**Status:** Approved — next up
 
 ## Goal
 
@@ -25,7 +25,7 @@ This is a display layer. **No migration, no enum change, no write path.**
 | CTR | CTR — Contract Signed | `contract_signed` | `contract_signed` |
 | MO | MO — Material Order | `material_ordered` | `material_ordered` |
 | WO | WO — Work Order | `production_scheduled`, `installed` | `production_scheduled` |
-| $ | $ — Collections | `invoiced`, `paid` | `invoiced` |
+| $ | $ — Money / Collections | `invoiced`, `paid` | `invoiced` |
 | Closed | Closed | `closed` | `closed` |
 
 Two-word labels are for column headers and detail views, where a new rep needs the expansion. The bare abbreviation (`CI`, `ADJ MT`, `$`) is used in tight spots — rep cards, card chips, filter pills.
@@ -65,13 +65,13 @@ Within-stage progression stays a normal status change and does not move the card
 - **`JOB_STATUS_LABELS` survives.** Two label sets with different jobs: statuses name a precise database state (used by the transition control and the activity timeline), stages name a rep-facing bucket. Deleting the first would make the timeline read "moved to CI → CI".
 - **`STAGE_STATUSES` is derived.** Hand-maintaining both directions is how the two drift apart.
 
-## Open questions
+## Resolved mapping questions
 
-Both carry a working default from the roadmap; neither blocks the PR.
+All three are settled and recorded in the roadmap's locked decisions.
 
-- `paid` maps to `$`, so the collections column contains fully-collected jobs. Default: ship as mapped, render paid jobs in a settled state. Alternative: map `paid` to Closed.
-- `installed` maps to WO, so the "installed but unpaid" alert (PR-013) fires on WO cards. Default: keep it on WO. Alternative: map `installed` to `$`.
-- The roadmap's CI stuck rule is "no adjuster date after 2 days", but a job waiting on an adjuster date sits at `claim_filed`, which maps to ADJ MT. Worth resolving when PR-013 implements the thresholds — it may be an ADJ MT rule rather than a CI one.
+- **`paid` stays in `$`.** The column is titled **Money / Collections** rather than "owed", so a fully-collected job reads correctly sitting there.
+- **`installed` stays in `WO`.** The PR-013 stuck alert will read "installed but unpaid" on the WO card.
+- **The adjuster-date stuck rule belongs to ADJ MT, not CI.** A job waiting on an adjuster date sits at `claim_filed`, which maps to ADJ MT. CI's own rule becomes "inspection complete but no claim filed after 2 days". Thresholds are implemented in PR-013, not here.
 
 ## Acceptance test
 
