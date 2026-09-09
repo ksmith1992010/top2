@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { listJobsBoard } from "@/domain/queries/list-jobs-board";
 import { closeDb, getDb } from "@/lib/db";
 import { customers, jobs, organizations, properties } from "@/lib/db/schema";
-import { JOB_STATUSES } from "@/lib/db/schema/enums";
+import { PIPELINE_STAGES } from "@/lib/pipeline-stages";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
@@ -12,7 +12,7 @@ describe.skipIf(!hasDatabase)("listJobsBoard", () => {
     await closeDb();
   });
 
-  it("groups org jobs by status and excludes soft-deleted and cross-org rows", async () => {
+  it("groups org jobs by stage and excludes soft-deleted and cross-org rows", async () => {
     const db = getDb();
     const stamp = Date.now();
 
@@ -93,12 +93,12 @@ describe.skipIf(!hasDatabase)("listJobsBoard", () => {
 
     const board = await listJobsBoard({ organizationId: orgA.id });
 
-    expect(board.columns).toHaveLength(JOB_STATUSES.length);
+    expect(board.columns).toHaveLength(PIPELINE_STAGES.length);
     expect(board.totalJobs).toBe(2);
 
-    const leadColumn = board.columns.find((column) => column.status === "lead");
-    const claimColumn = board.columns.find((column) => column.status === "claim_filed");
-    const approvedColumn = board.columns.find((column) => column.status === "approved");
+    const leadColumn = board.columns.find((column) => column.stage === "lead");
+    const claimColumn = board.columns.find((column) => column.stage === "adj_mt");
+    const approvedColumn = board.columns.find((column) => column.stage === "dr");
 
     expect(leadColumn?.total).toBe(1);
     expect(leadColumn?.items.map((item) => item.id)).toEqual([leadJob.id]);
@@ -205,7 +205,7 @@ describe.skipIf(!hasDatabase)("listJobsBoard", () => {
     const board = await listJobsBoard({ organizationId: org.id });
 
     const column = board.columns.find(
-      (entry) => entry.status === "inspection_scheduled",
+      (entry) => entry.stage === "ci",
     );
 
     expect(column?.total).toBe(3);
@@ -220,7 +220,7 @@ describe.skipIf(!hasDatabase)("listJobsBoard", () => {
     const second = await listJobsBoard({ organizationId: org.id });
     const secondIds =
       second.columns
-        .find((entry) => entry.status === "inspection_scheduled")
+        .find((entry) => entry.stage === "ci")
         ?.items.map((item) => item.id) ?? [];
     expect(secondIds).toEqual(ids);
 

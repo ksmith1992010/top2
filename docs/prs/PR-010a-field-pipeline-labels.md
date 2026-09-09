@@ -2,7 +2,7 @@
 
 **Branch:** `feat/pr-010a-field-pipeline-labels`
 **Depends on:** PR-009 pipeline board (merged)
-**Status:** Approved — next up
+**Status:** Built
 
 ## Goal
 
@@ -46,7 +46,8 @@ Within-stage progression stays a normal status change and does not move the card
   - `STAGE_STATUSES` — `Record<PipelineStage, JobStatus[]>`, derived from `STATUS_TO_STAGE`, not hand-written
 - `listJobsBoard` groups by stage instead of status — nine columns, counts are per-stage totals
 - Board column headers use `STAGE_LABELS`
-- Jobs list and job detail show the stage label alongside the status they already render
+- Jobs list gains a Stage column (short label) ahead of the existing Status column; job detail shows Stage alongside Status
+- Board cards carry their canonical status label. Nine columns collapse thirteen statuses, so without it a rep could not tell `production_scheduled` from `installed` inside WO — the regrouping would lose information the thirteen-column board showed
 - `JOB_STATUS_LABELS` stays exactly as it is — it remains the canonical per-status name and is still what the status transition control shows
 
 ## Out of scope — must NOT touch
