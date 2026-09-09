@@ -169,7 +169,7 @@ Who has installed jobs but no money collected?
 | Job activity timeline | Built (PR-008) |
 | Pipeline board (`/jobs/board`) | **Merged** on `main` (PR-009, GitHub #17, commit `9d1bcc9`) |
 | Field-language stage labels | Built (PR-010a) |
-| Rep ownership / assignment | Not started (PR-011) — `job_participants` table exists, nothing writes it |
+| Rep ownership / assignment | Read layer built (joins `job_participants`, renders Sales rep); **no write path**, so every job reads `—` (PR-011) |
 | Homepage rep cards | Not started (PR-012) — dashboard is placeholder cards |
 
 Everything through PR-009 is on `main`. Production, calendar, documents, reports, materials, and payments are still placeholder routes.
@@ -198,7 +198,7 @@ From PR-010 onward, the numbers in this file are the only ones that matter. Noth
 |---|---|---|
 | 1 | PR-010a | Field-friendly pipeline labels |
 | 2 | PR-010 | Roofing job fields |
-| 3 | PR-011 | Job assignment foundation |
+| 3 | PR-011 | Job assignment write path |
 | 4 | PR-012 | Homepage rep pipeline cards |
 | 5 | PR-013 | Days in stage, next action, stuck alerts |
 | 6 | PR-010b | Claims foundation |
@@ -238,7 +238,7 @@ Spec: [prs/PR-010a-field-pipeline-labels.md](./prs/PR-010a-field-pipeline-labels
 
 Maps the thirteen internal statuses onto the nine field stages, defines each stage's entry status for future writes, and regroups the PR-009 board from thirteen columns to nine. Display layer only — no migration, no write path, no enum change.
 
-### PR-011 — Job assignment foundation
+### PR-011 — Job assignment write path
 
 **Purpose:** assign ownership. Nothing else on the roadmap works without it.
 
@@ -249,9 +249,21 @@ Who is the closer?
 Who handles production?
 ```
 
-Reuses the existing, currently-unwritten `job_participants` table rather than adding people columns to `jobs`. The `job_participant_role` enum today is `sales_owner | knocker | production_manager | office_admin` — "closer" needs adding, which is a migration.
+**The read layer already exists.** `listJobs` and `getJobDetail` both join `job_participants` on `role = 'sales_owner'` with `removed_at IS NULL`, and the jobs list and job detail already render a Sales rep field. It shows `—` on every job because **no rows are ever written**. So this PR is narrower than a full assignment feature — it is the write path only:
 
-Needs a real write path: assignment must go through a single command that logs a `job.participant_assigned` activity event in the same transaction, matching `updateJobStatusCommand`.
+```text
+Add/write job participants
+Support sales_owner
+Add closer role if still needed
+Simple assignment UI or command
+Org-scoped and permission-gated
+Activity event when assignment changes
+No rep cards yet
+```
+
+Reuses `job_participants` rather than adding people columns to `jobs`. The `job_participant_role` enum today is `sales_owner | knocker | production_manager | office_admin` — adding "closer" is a migration, so confirm it is wanted before paying for one.
+
+Assignment must go through a single command that logs a `job.participant_assigned` activity event in the same transaction, matching `updateJobStatusCommand`. Do not add a parallel update route.
 
 ### PR-012 — Homepage rep pipeline cards
 
@@ -404,6 +416,14 @@ File storage
 The assistant layer — remind, summarize, nudge, draft texts, flag stuck jobs, build morning reports — comes after that. Not before.
 
 The open MCP hub draft (GitHub #11) sits in this bucket — it is off the critical path and should not merge ahead of the manual screens.
+
+## Tracked follow-ups
+
+Small, real, and deliberately not bundled into the PR that surfaced them.
+
+| Follow-up | Why it is open |
+|---|---|
+| Jobs list status filter still offers the thirteen canonical statuses | PR-010a gave the list a Stage column, but the filter beside it still reads in software language — a rep sees `CI` in the column and must filter by "Inspection Scheduled" or "Inspection Complete". Fixing it means a stage filter that expands to `STAGE_STATUSES[stage]`, which is a new query filter and belongs with PR-012's `owner`/`stage` filters rather than in a labels-only PR. |
 
 ## Decisions currently locked
 
