@@ -16,7 +16,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-top-border bg-top-navy pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-top-border bg-top-black pb-[env(safe-area-inset-bottom)] md:hidden"
       aria-label="Mobile navigation"
     >
       <div className="flex items-stretch">
@@ -26,7 +26,7 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={cn(tabClass, active ? "text-top-gold" : "text-top-muted")}
+              className={cn(tabClass, active ? "text-top-text" : "text-top-muted")}
               aria-current={active ? "page" : undefined}
             >
               <NavIconGlyph icon={item.icon} />

@@ -19,12 +19,12 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-top-muted">CRM</p>
-          <h1 className="mt-1 text-2xl font-semibold text-top-navy">Leads</h1>
-          <p className="mt-2 text-sm text-slate-600">{total} lead{total === 1 ? "" : "s"}</p>
+          <h1 className="mt-1 text-2xl font-semibold text-top-text">Leads</h1>
+          <p className="mt-2 text-sm text-top-muted">{total} lead{total === 1 ? "" : "s"}</p>
         </div>
         <Link
           href="/leads/new"
-          className="inline-flex items-center justify-center rounded-lg bg-top-navy px-4 py-2 text-sm font-medium text-white"
+          className="inline-flex items-center justify-center rounded-lg bg-top-accent px-4 py-2 text-sm font-medium text-top-on-accent"
         >
           New lead
         </Link>
@@ -35,23 +35,23 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
       </Suspense>
 
       {items.length === 0 ? (
-        <div className="mt-8 rounded-xl border border-dashed border-top-border bg-white px-6 py-12 text-center">
-          <p className="text-base font-medium text-top-navy">No leads yet</p>
-          <p className="mt-2 text-sm text-slate-600">
+        <div className="mt-8 rounded-xl border border-dashed border-top-border bg-top-card px-6 py-12 text-center">
+          <p className="text-base font-medium text-top-text">No leads yet</p>
+          <p className="mt-2 text-sm text-top-muted">
             {search ? "Try a different search or create a new lead." : "Create your first lead to get started."}
           </p>
           <Link
             href="/leads/new"
-            className="mt-6 inline-flex rounded-lg bg-top-navy px-4 py-2 text-sm font-medium text-white"
+            className="mt-6 inline-flex rounded-lg bg-top-accent px-4 py-2 text-sm font-medium text-top-on-accent"
           >
             Create lead
           </Link>
         </div>
       ) : (
-        <div className="mt-6 overflow-hidden rounded-xl border border-top-border bg-white shadow-sm">
+        <div className="mt-6 overflow-hidden rounded-xl border border-top-border bg-top-card shadow-sm">
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-top-border bg-slate-50 text-top-muted">
+              <thead className="border-b border-top-border bg-top-surface-raised text-top-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Name</th>
                   <th className="px-4 py-3 font-medium">Phone</th>
@@ -66,19 +66,19 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
                     <td className="px-4 py-3">
                       <Link
                         href={`/leads/${item.id}`}
-                        className="font-medium text-top-navy hover:underline"
+                        className="font-medium text-top-text hover:underline"
                       >
                         {item.firstName} {item.lastName}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-slate-600">{item.phone ?? "—"}</td>
-                    <td className="px-4 py-3 text-slate-600">{item.email ?? "—"}</td>
-                    <td className="px-4 py-3 text-slate-600">
+                    <td className="px-4 py-3 text-top-muted">{item.phone ?? "—"}</td>
+                    <td className="px-4 py-3 text-top-muted">{item.email ?? "—"}</td>
+                    <td className="px-4 py-3 text-top-muted">
                       {item.primaryCity && item.primaryState
                         ? `${item.primaryCity}, ${item.primaryState}`
                         : "—"}
                     </td>
-                    <td className="px-4 py-3 text-slate-600">
+                    <td className="px-4 py-3 text-top-muted">
                       {new Date(item.createdAt).toLocaleDateString()}
                     </td>
                   </tr>

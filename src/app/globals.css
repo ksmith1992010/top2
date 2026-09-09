@@ -15,11 +15,11 @@
 @layer components {
   .auth-input {
     @apply w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2.5 text-sm text-top-text placeholder:text-top-muted outline-none transition-colors;
-    @apply focus:border-top-gold/60 focus:ring-2 focus:ring-top-gold/20;
+    @apply focus:border-top-accent/60 focus:ring-2 focus:ring-top-accent/20;
   }
 
   .auth-input-error {
-    @apply border-red-500/70 focus:border-red-500 focus:ring-red-500/20;
+    @apply border-top-accent/70 focus:border-top-accent focus:ring-top-accent/20;
   }
 
   .auth-label {
@@ -27,8 +27,8 @@
   }
 
   .auth-button-primary {
-    @apply w-full rounded-lg bg-top-gold px-4 py-2.5 text-sm font-semibold text-top-navy transition-colors;
-    @apply hover:bg-top-gold-hover focus:outline-none focus:ring-2 focus:ring-top-gold/40 focus:ring-offset-2 focus:ring-offset-top-surface;
+    @apply w-full rounded-lg bg-top-accent px-4 py-2.5 text-sm font-semibold text-top-on-accent transition-colors;
+    @apply hover:bg-top-accent-hover focus:outline-none focus:ring-2 focus:ring-top-accent/40 focus:ring-offset-2 focus:ring-offset-top-surface;
     @apply disabled:cursor-not-allowed disabled:opacity-60;
   }
 
@@ -42,7 +42,7 @@
   }
 
   .nav-link-active {
-    @apply border-l-2 border-top-gold bg-top-gold/10 text-top-gold;
+    @apply border-l-2 border-top-text bg-top-surface-raised text-top-text;
   }
 
   .nav-link-idle {

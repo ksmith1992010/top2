@@ -19,7 +19,7 @@ export function UserMenu({ user }: UserMenuProps) {
         <p className="text-xs text-top-muted">{user.email}</p>
       </div>
       <div
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-top-gold text-sm font-semibold text-top-navy sm:hidden"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-top-accent text-sm font-semibold text-top-on-accent sm:hidden"
         aria-hidden
       >
         {displayName.charAt(0).toUpperCase()}

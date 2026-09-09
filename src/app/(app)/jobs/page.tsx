@@ -37,7 +37,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     <div className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-top-gold">Operations</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-top-muted">Operations</p>
           <h1 className="mt-1 text-2xl font-semibold text-top-text">Jobs</h1>
           <p className="mt-2 text-sm text-top-muted">
             {jobsCountLabel(items.length, total)} · run every roof from lead to paid
@@ -64,7 +64,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
           </p>
           <Link
             href="/leads/new"
-            className="mt-6 inline-flex rounded-lg bg-top-gold px-4 py-2 text-sm font-semibold text-top-navy"
+            className="mt-6 inline-flex rounded-lg bg-top-accent px-4 py-2 text-sm font-semibold text-top-on-accent"
           >
             New lead
           </Link>
@@ -91,7 +91,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                     <td className="px-4 py-3">
                       <Link
                         href={`/jobs/${item.id}`}
-                        className="font-medium text-top-gold hover:underline"
+                        className="font-medium text-top-text hover:underline"
                       >
                         {item.jobNumber}
                       </Link>

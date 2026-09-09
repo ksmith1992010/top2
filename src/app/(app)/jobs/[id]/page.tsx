@@ -41,12 +41,12 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 md:px-8 md:py-8">
-      <Link href="/jobs" className="text-sm text-top-muted hover:text-top-gold">
+      <Link href="/jobs" className="text-sm text-top-muted hover:text-top-text">
         ← Back to jobs
       </Link>
 
       <div className="mt-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-top-gold">Job</p>
+        <p className="text-xs font-medium uppercase tracking-wide text-top-muted">Job</p>
         <h1 className="mt-1 text-2xl font-semibold text-top-text">{job.jobNumber}</h1>
         <p className="mt-2 text-sm text-top-muted">
           {STAGE_LABELS[STATUS_TO_STAGE[job.status]]} ·{" "}
@@ -111,7 +111,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             <div>
               <dt className="text-xs text-top-muted">Name</dt>
               <dd className="mt-1 text-sm text-top-text">
-                <Link href={`/leads/${job.customer.id}`} className="text-top-gold hover:underline">
+                <Link href={`/leads/${job.customer.id}`} className="text-top-text hover:underline">
                   {job.customer.firstName} {job.customer.lastName}
                 </Link>
               </dd>

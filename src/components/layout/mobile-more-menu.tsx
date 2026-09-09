@@ -39,7 +39,7 @@ export function MobileMoreMenu() {
         onClick={() => setOpen((value) => !value)}
         className={cn(
           "flex min-h-[44px] w-full flex-col items-center justify-center gap-0.5 px-1 py-2 text-[10px] font-medium",
-          moreActive || open ? "text-top-gold" : "text-top-muted",
+          moreActive || open ? "text-top-text" : "text-top-muted",
         )}
         aria-expanded={open}
         aria-haspopup="true"
@@ -62,7 +62,7 @@ export function MobileMoreMenu() {
                     className={cn(
                       "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium",
                       active
-                        ? "bg-top-gold/10 text-top-gold"
+                        ? "bg-top-surface-raised text-top-text"
                         : "text-top-muted hover:bg-top-surface-raised hover:text-top-text",
                     )}
                     onClick={() => setOpen(false)}

@@ -68,7 +68,7 @@ export default function LoginForm() {
             hasError={Boolean(error)}
           />
         </div>
-        {error ? <p className="text-sm text-red-400">{error}</p> : null}
+        {error ? <p className="text-sm text-top-accent">{error}</p> : null}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Signing in…" : "Sign in"}
         </Button>
@@ -76,13 +76,13 @@ export default function LoginForm() {
 
       <p className="mt-6 text-center text-sm text-top-muted">
         Invited to the team?{" "}
-        <Link href="/signup" className="font-medium text-top-gold hover:text-top-gold-hover">
+        <Link href="/signup" className="font-medium text-top-accent hover:text-top-accent-hover">
           Create account
         </Link>
       </p>
       <p className="mt-2 text-center text-sm text-top-muted">
         {AUTH_COPY.loginRequestAccessPrompt}{" "}
-        <Link href="/request-access" className="font-medium text-top-gold hover:text-top-gold-hover">
+        <Link href="/request-access" className="font-medium text-top-accent hover:text-top-accent-hover">
           {AUTH_COPY.requestAccessTitle}
         </Link>
       </p>

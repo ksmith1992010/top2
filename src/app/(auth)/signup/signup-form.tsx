@@ -100,7 +100,7 @@ export default function SignupForm() {
           Account creation requires an invite link from your administrator.
         </p>
         <p className="mt-6 text-sm text-top-muted">
-          <Link href="/login" className="text-top-gold hover:text-top-gold-hover">
+          <Link href="/login" className="text-top-accent hover:text-top-accent-hover">
             Back to sign in
           </Link>
         </p>
@@ -120,9 +120,9 @@ export default function SignupForm() {
     return (
       <Card className="w-full max-w-md">
         <h1 className="text-xl font-semibold text-top-text">Invite unavailable</h1>
-        <p className="mt-3 text-sm text-red-400">{error}</p>
+        <p className="mt-3 text-sm text-top-accent">{error}</p>
         <p className="mt-6 text-sm text-top-muted">
-          <Link href="/login" className="text-top-gold hover:text-top-gold-hover">
+          <Link href="/login" className="text-top-accent hover:text-top-accent-hover">
             Back to sign in
           </Link>
         </p>
@@ -178,7 +178,7 @@ export default function SignupForm() {
             hasError={Boolean(error)}
           />
         </div>
-        {error ? <p className="text-sm text-red-400">{error}</p> : null}
+        {error ? <p className="text-sm text-top-accent">{error}</p> : null}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Creating account…" : "Create account"}
         </Button>
@@ -186,7 +186,7 @@ export default function SignupForm() {
 
       <p className="mt-6 text-center text-sm text-top-muted">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-top-gold hover:text-top-gold-hover">
+        <Link href="/login" className="font-medium text-top-accent hover:text-top-accent-hover">
           Sign in
         </Link>
       </p>
