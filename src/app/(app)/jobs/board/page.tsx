@@ -2,6 +2,7 @@ import Link from "next/link";
 import { JobsViewToggle } from "@/components/jobs/jobs-view-toggle";
 import { listJobsBoard } from "@/domain/queries/list-jobs-board";
 import { requirePagePermission } from "@/lib/auth/api-auth";
+import { JOB_STATUS_LABELS } from "@/lib/db/schema/enums";
 
 function boardCountLabel(total: number): string {
   if (total === 0) {
@@ -44,7 +45,7 @@ export default async function JobsBoardPage() {
         <div className="flex gap-3 overflow-x-auto pb-4">
           {board.columns.map((column) => (
             <section
-              key={column.status}
+              key={column.stage}
               className="flex w-64 shrink-0 flex-col rounded-xl border border-top-border bg-top-surface/40"
               aria-label={`${column.label}, ${column.total} jobs`}
             >
@@ -71,6 +72,9 @@ export default async function JobsBoardPage() {
                         <p className="mt-1 truncate text-sm text-top-text">{job.customerName}</p>
                         <p className="mt-0.5 text-xs text-top-muted">
                           {job.city}, {job.state}
+                        </p>
+                        <p className="mt-1.5 text-xs text-top-muted">
+                          {JOB_STATUS_LABELS[job.status]}
                         </p>
                       </Link>
                     </li>

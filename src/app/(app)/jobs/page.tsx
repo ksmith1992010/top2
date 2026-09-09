@@ -6,6 +6,7 @@ import { listJobs } from "@/domain/queries/list-jobs";
 import { requirePagePermission } from "@/lib/auth/api-auth";
 import { JOB_STATUS_LABELS } from "@/lib/db/schema/enums";
 import { resolveJobStatus } from "@/lib/job-status";
+import { STAGE_SHORT_LABELS, STATUS_TO_STAGE } from "@/lib/pipeline-stages";
 
 type JobsPageProps = {
   searchParams: Promise<{ search?: string; status?: string }>;
@@ -77,6 +78,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                   <th className="px-4 py-3 font-medium">Job #</th>
                   <th className="px-4 py-3 font-medium">Customer</th>
                   <th className="px-4 py-3 font-medium">Property</th>
+                  <th className="px-4 py-3 font-medium">Stage</th>
                   <th className="px-4 py-3 font-medium">Status</th>
                   <th className="px-4 py-3 font-medium">Type</th>
                   <th className="px-4 py-3 font-medium">Rep</th>
@@ -104,7 +106,10 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                       <br />
                       {item.city}, {item.state} {item.zip}
                     </td>
-                    <td className="px-4 py-3 text-top-text">
+                    <td className="px-4 py-3 font-medium text-top-text">
+                      {STAGE_SHORT_LABELS[STATUS_TO_STAGE[item.status]]}
+                    </td>
+                    <td className="px-4 py-3 text-top-muted">
                       {JOB_STATUS_LABELS[item.status]}
                     </td>
                     <td className="px-4 py-3 capitalize text-top-muted">{item.jobType}</td>

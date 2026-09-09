@@ -1,11 +1,13 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { customers, jobs, properties } from "@/lib/db/schema";
+import { type JobStatus } from "@/lib/db/schema/enums";
 import {
-  JOB_STATUS_LABELS,
-  JOB_STATUSES,
-  type JobStatus,
-} from "@/lib/db/schema/enums";
+  PIPELINE_STAGES,
+  STAGE_LABELS,
+  STATUS_TO_STAGE,
+  type PipelineStage,
+} from "@/lib/pipeline-stages";
 
 export type BoardJobItem = {
   id: string;
@@ -18,7 +20,7 @@ export type BoardJobItem = {
 };
 
 export type BoardColumn = {
-  status: JobStatus;
+  stage: PipelineStage;
   label: string;
   items: BoardJobItem[];
   total: number;
@@ -34,8 +36,11 @@ export type ListJobsBoardResult = {
 };
 
 /**
- * Org-scoped pipeline board data. Read-only; groups every live job by canonical
- * status. Cards are newest-first (`updated_at desc`), with `id desc` as a stable
+ * Org-scoped pipeline board data. Read-only; groups every live job into the nine
+ * field pipeline stages. Jobs keep their canonical `job_status` — the stage is a
+ * display grouping, so no write path is involved.
+ *
+ * Cards are newest-first (`updated_at desc`), with `id desc` as a stable
  * tie-breaker so equal timestamps never reorder between renders.
  */
 export async function listJobsBoard(
@@ -67,13 +72,13 @@ export async function listJobsBoard(
     )
     .orderBy(desc(jobs.updatedAt), desc(jobs.id));
 
-  const byStatus = new Map<JobStatus, BoardJobItem[]>();
-  for (const status of JOB_STATUSES) {
-    byStatus.set(status, []);
+  const byStage = new Map<PipelineStage, BoardJobItem[]>();
+  for (const stage of PIPELINE_STAGES) {
+    byStage.set(stage, []);
   }
 
   for (const row of rows) {
-    const bucket = byStatus.get(row.status);
+    const bucket = byStage.get(STATUS_TO_STAGE[row.status]);
     if (!bucket) {
       continue;
     }
@@ -88,11 +93,11 @@ export async function listJobsBoard(
     });
   }
 
-  const columns: BoardColumn[] = JOB_STATUSES.map((status) => {
-    const items = byStatus.get(status) ?? [];
+  const columns: BoardColumn[] = PIPELINE_STAGES.map((stage) => {
+    const items = byStage.get(stage) ?? [];
     return {
-      status,
-      label: JOB_STATUS_LABELS[status],
+      stage,
+      label: STAGE_LABELS[stage],
       items,
       total: items.length,
     };

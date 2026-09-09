@@ -8,6 +8,7 @@ import { requirePagePermission } from "@/lib/auth/api-auth";
 import { getUserPermissions } from "@/lib/auth/roles";
 import { JOB_STATUS_LABELS } from "@/lib/db/schema/enums";
 import { hasPermission } from "@/lib/permissions";
+import { STAGE_LABELS, STATUS_TO_STAGE } from "@/lib/pipeline-stages";
 
 type JobDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -48,7 +49,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         <p className="text-xs font-medium uppercase tracking-wide text-top-gold">Job</p>
         <h1 className="mt-1 text-2xl font-semibold text-top-text">{job.jobNumber}</h1>
         <p className="mt-2 text-sm text-top-muted">
-          {JOB_STATUS_LABELS[job.status]} ·{" "}
+          {STAGE_LABELS[STATUS_TO_STAGE[job.status]]} ·{" "}
           <span className="capitalize">{job.jobType}</span>
         </p>
       </div>
@@ -57,6 +58,12 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         <section className="command-card">
           <h2 className="text-sm font-medium text-top-text">Overview</h2>
           <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <dt className="text-xs text-top-muted">Stage</dt>
+              <dd className="mt-1 text-sm text-top-text">
+                {STAGE_LABELS[STATUS_TO_STAGE[job.status]]}
+              </dd>
+            </div>
             <div>
               <dt className="text-xs text-top-muted">Status</dt>
               <dd className="mt-1 text-sm text-top-text">{JOB_STATUS_LABELS[job.status]}</dd>

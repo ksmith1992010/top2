@@ -168,7 +168,7 @@ Who has installed jobs but no money collected?
 | Activity event logging | Built |
 | Job activity timeline | Built (PR-008) |
 | Pipeline board (`/jobs/board`) | **Merged** on `main` (PR-009, GitHub #17, commit `9d1bcc9`) |
-| Field-language stage labels | Not started (PR-010a) |
+| Field-language stage labels | Built (PR-010a) |
 | Rep ownership / assignment | Not started (PR-011) — `job_participants` table exists, nothing writes it |
 | Homepage rep cards | Not started (PR-012) — dashboard is placeholder cards |
 
