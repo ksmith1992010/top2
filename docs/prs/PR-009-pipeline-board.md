@@ -2,7 +2,7 @@
 
 **Branch:** `feat/pr-009-pipeline-board`  
 **Depends on:** PR-008 job activity timeline  
-**Status:** Read-only board UI
+**Status:** Merged — GitHub #17, commit `9d1bcc9`
 
 ## Goal
 
