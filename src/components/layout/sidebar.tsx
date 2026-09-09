@@ -13,9 +13,9 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-top-border bg-top-navy md:flex">
+    <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-top-border bg-top-black md:flex">
       <div className="border-b border-top-border px-4 py-4">
-        <p className="text-xs font-medium uppercase tracking-[0.15em] text-top-gold">
+        <p className="text-xs font-medium uppercase tracking-[0.15em] text-top-accent">
           RoofRun
         </p>
         <p className="text-base font-semibold text-top-text">Field ops CRM</p>

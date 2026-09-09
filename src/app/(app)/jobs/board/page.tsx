@@ -19,7 +19,7 @@ export default async function JobsBoardPage() {
     <div className="px-4 py-6 md:px-8 md:py-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-top-gold">Operations</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-top-muted">Operations</p>
           <h1 className="mt-1 text-2xl font-semibold text-top-text">Pipeline</h1>
           <p className="mt-2 text-sm text-top-muted">
             {boardCountLabel(board.totalJobs)} · jobs by stage
@@ -36,7 +36,7 @@ export default async function JobsBoardPage() {
           </p>
           <Link
             href="/leads/new"
-            className="mt-6 inline-flex rounded-lg bg-top-gold px-4 py-2 text-sm font-semibold text-top-navy"
+            className="mt-6 inline-flex rounded-lg bg-top-accent px-4 py-2 text-sm font-semibold text-top-on-accent"
           >
             New lead
           </Link>
@@ -66,9 +66,9 @@ export default async function JobsBoardPage() {
                     <li key={job.id}>
                       <Link
                         href={`/jobs/${job.id}`}
-                        className="block rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 transition-colors hover:border-top-gold/50"
+                        className="block rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 transition-colors hover:border-top-accent/50"
                       >
-                        <p className="text-sm font-medium text-top-gold">{job.jobNumber}</p>
+                        <p className="text-sm font-medium text-top-text">{job.jobNumber}</p>
                         <p className="mt-1 truncate text-sm text-top-text">{job.customerName}</p>
                         <p className="mt-0.5 text-xs text-top-muted">
                           {job.city}, {job.state}

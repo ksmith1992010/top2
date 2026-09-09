@@ -7,7 +7,7 @@ export function PlaceholderPage({
 }) {
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 md:px-8 md:py-8">
-      <p className="text-xs font-medium uppercase tracking-wide text-top-gold">Not live yet</p>
+      <p className="text-xs font-medium uppercase tracking-wide text-top-muted">Not live yet</p>
       <h1 className="mt-1 text-2xl font-semibold text-top-text">{item.label}</h1>
       <p className="mt-3 text-base text-top-muted">{item.description}</p>
       <p className="mt-6 rounded-xl border border-dashed border-top-border bg-top-card px-4 py-3 text-sm text-top-muted">

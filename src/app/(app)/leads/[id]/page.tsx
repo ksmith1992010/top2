@@ -12,9 +12,9 @@ type CustomerDetailPageProps = {
 
 function PlaceholderSection({ title, note }: { title: string; note: string }) {
   return (
-    <section className="rounded-xl border border-dashed border-top-border bg-slate-50 px-4 py-6">
-      <h2 className="text-sm font-medium text-top-navy">{title}</h2>
-      <p className="mt-2 text-sm text-slate-500">{note}</p>
+    <section className="rounded-xl border border-dashed border-top-border bg-top-surface-raised px-4 py-6">
+      <h2 className="text-sm font-medium text-top-text">{title}</h2>
+      <p className="mt-2 text-sm text-top-muted">{note}</p>
     </section>
   );
 }
@@ -40,21 +40,21 @@ export default async function CustomerDetailPage({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 md:px-8 md:py-8">
-      <Link href="/leads" className="text-sm text-top-muted hover:text-top-navy">
+      <Link href="/leads" className="text-sm text-top-muted hover:text-top-text">
         ← Back to leads
       </Link>
 
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-top-muted">Lead</p>
-          <h1 className="mt-1 text-2xl font-semibold text-top-navy">
+          <h1 className="mt-1 text-2xl font-semibold text-top-text">
             {customer.firstName} {customer.lastName}
           </h1>
         </div>
         {!isEditing && (
           <Link
             href={`/leads/${id}?edit=1`}
-            className="inline-flex rounded-lg border border-top-border px-4 py-2 text-sm font-medium text-slate-700"
+            className="inline-flex rounded-lg border border-top-border px-4 py-2 text-sm font-medium text-top-text"
           >
             Edit
           </Link>
@@ -62,7 +62,7 @@ export default async function CustomerDetailPage({
       </div>
 
       {isEditing ? (
-        <div className="mt-8 rounded-xl border border-top-border bg-white p-6 shadow-sm">
+        <div className="mt-8 rounded-xl border border-top-border bg-top-card p-6 shadow-sm">
           <LeadForm
             mode="edit"
             customerId={id}
@@ -85,8 +85,8 @@ export default async function CustomerDetailPage({
         </div>
       ) : (
         <div className="mt-8 space-y-6">
-          <section className="rounded-xl border border-top-border bg-white p-6 shadow-sm">
-            <h2 className="text-sm font-medium text-top-navy">Overview</h2>
+          <section className="rounded-xl border border-top-border bg-top-card p-6 shadow-sm">
+            <h2 className="text-sm font-medium text-top-text">Overview</h2>
             <dl className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
                 <dt className="text-xs text-top-muted">Email</dt>
@@ -103,10 +103,10 @@ export default async function CustomerDetailPage({
             </dl>
           </section>
 
-          <section className="rounded-xl border border-top-border bg-white p-6 shadow-sm">
-            <h2 className="text-sm font-medium text-top-navy">Property</h2>
+          <section className="rounded-xl border border-top-border bg-top-card p-6 shadow-sm">
+            <h2 className="text-sm font-medium text-top-text">Property</h2>
             {customer.primaryProperty ? (
-              <p className="mt-3 text-sm text-slate-700">
+              <p className="mt-3 text-sm text-top-text">
                 {customer.primaryProperty.addressLine1}
                 {customer.primaryProperty.addressLine2
                   ? `, ${customer.primaryProperty.addressLine2}`
@@ -116,12 +116,12 @@ export default async function CustomerDetailPage({
                 {customer.primaryProperty.zip}
               </p>
             ) : (
-              <p className="mt-3 text-sm text-slate-500">No property on file.</p>
+              <p className="mt-3 text-sm text-top-muted">No property on file.</p>
             )}
           </section>
 
-          <section className="rounded-xl border border-top-border bg-white p-6 shadow-sm">
-            <h2 className="text-sm font-medium text-top-navy">Job</h2>
+          <section className="rounded-xl border border-top-border bg-top-card p-6 shadow-sm">
+            <h2 className="text-sm font-medium text-top-text">Job</h2>
             {customer.latestJob ? (
               <div className="mt-4 space-y-4">
                 <dl className="grid gap-4 sm:grid-cols-2">
@@ -130,7 +130,7 @@ export default async function CustomerDetailPage({
                     <dd className="mt-1 text-sm font-medium">
                       <Link
                         href={`/jobs/${customer.latestJob.id}`}
-                        className="text-top-navy hover:underline"
+                        className="text-top-text hover:underline"
                       >
                         {customer.latestJob.jobNumber}
                       </Link>
@@ -151,12 +151,12 @@ export default async function CustomerDetailPage({
                     <dd className="mt-1 text-sm">{customer.latestJob.leadSource ?? "—"}</dd>
                   </div>
                 </dl>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-top-muted">
                   Pipeline controls are not wired yet.
                 </p>
               </div>
             ) : (
-              <p className="mt-3 text-sm text-slate-500">No job linked yet.</p>
+              <p className="mt-3 text-sm text-top-muted">No job linked yet.</p>
             )}
           </section>
 

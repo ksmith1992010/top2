@@ -17,12 +17,12 @@ export function AppShell({ user, children }: AppShellProps) {
     <div className="flex min-h-screen bg-top-surface">
       <Sidebar />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-top-border bg-top-navy px-4 md:px-6">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-top-border bg-top-black px-4 md:px-6">
           <div className="md:hidden">
             <p className="text-sm font-semibold text-top-text">RoofRun</p>
           </div>
           <div className="hidden md:block">
-            <p className="text-xs font-medium uppercase tracking-wide text-top-gold">RoofRun</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-top-accent">RoofRun</p>
             <p className="text-sm font-semibold text-top-text">Home</p>
           </div>
           <UserMenu user={user} />

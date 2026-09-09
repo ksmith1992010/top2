@@ -74,12 +74,12 @@ export function JobStatusForm({ jobId, currentStatus }: JobStatusFormProps) {
       </div>
 
       {error ? (
-        <p className="text-sm text-red-400" role="alert">
+        <p className="text-sm text-top-accent" role="alert">
           {error}
         </p>
       ) : null}
       {success ? (
-        <p className="text-sm text-top-gold" role="status">
+        <p className="text-sm text-top-text" role="status">
           {success}
         </p>
       ) : null}
@@ -87,7 +87,7 @@ export function JobStatusForm({ jobId, currentStatus }: JobStatusFormProps) {
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-lg bg-top-gold px-4 py-2 text-sm font-semibold text-top-navy disabled:opacity-60"
+        className="rounded-lg bg-top-accent px-4 py-2 text-sm font-semibold text-top-on-accent disabled:opacity-60"
       >
         {submitting ? "Updating…" : "Update status"}
       </button>

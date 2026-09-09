@@ -26,11 +26,11 @@ export function LeadsSearch({ initialSearch }: { initialSearch: string }) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="Search name, phone, or email"
-        className="w-full max-w-md rounded-lg border border-top-border px-3 py-2 text-sm"
+        className="w-full max-w-md rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-sm text-top-text placeholder:text-top-muted"
       />
       <button
         type="submit"
-        className="rounded-lg border border-top-border px-4 py-2 text-sm font-medium text-slate-700"
+        className="rounded-lg border border-top-border px-4 py-2 text-sm font-medium text-top-text"
       >
         Search
       </button>

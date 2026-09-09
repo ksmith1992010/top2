@@ -132,7 +132,7 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
       )}
 
       <fieldset className="space-y-4">
-        <legend className="text-sm font-medium text-top-navy">Contact</legend>
+        <legend className="text-sm font-medium text-top-text">Contact</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-sm">
             <span className="text-top-muted">First name</span>
@@ -140,7 +140,7 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
               required
               value={form.firstName}
               onChange={(e) => updateField("firstName", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-top-border px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-top-text placeholder:text-top-muted"
             />
           </label>
           <label className="block text-sm">
@@ -149,7 +149,7 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
               required
               value={form.lastName}
               onChange={(e) => updateField("lastName", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-top-border px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-top-text placeholder:text-top-muted"
             />
           </label>
           <label className="block text-sm">
@@ -158,7 +158,7 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
               type="email"
               value={form.email}
               onChange={(e) => updateField("email", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-top-border px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-top-text placeholder:text-top-muted"
             />
           </label>
           <label className="block text-sm">
@@ -166,7 +166,7 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
             <input
               value={form.phone}
               onChange={(e) => updateField("phone", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-top-border px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-top-text placeholder:text-top-muted"
             />
           </label>
         </div>
@@ -176,20 +176,20 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
             value={form.notes}
             onChange={(e) => updateField("notes", e.target.value)}
             rows={3}
-            className="mt-1 w-full rounded-lg border border-top-border px-3 py-2"
+            className="mt-1 w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-top-text placeholder:text-top-muted"
           />
         </label>
       </fieldset>
 
       <fieldset className="space-y-4">
-        <legend className="text-sm font-medium text-top-navy">Property</legend>
+        <legend className="text-sm font-medium text-top-text">Property</legend>
         <label className="block text-sm">
           <span className="text-top-muted">Address</span>
           <input
             required
             value={form.addressLine1}
             onChange={(e) => updateField("addressLine1", e.target.value)}
-            className="mt-1 w-full rounded-lg border border-top-border px-3 py-2"
+            className="mt-1 w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-top-text placeholder:text-top-muted"
           />
         </label>
         <label className="block text-sm">
@@ -197,7 +197,7 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
           <input
             value={form.addressLine2}
             onChange={(e) => updateField("addressLine2", e.target.value)}
-            className="mt-1 w-full rounded-lg border border-top-border px-3 py-2"
+            className="mt-1 w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-top-text placeholder:text-top-muted"
           />
         </label>
         <div className="grid gap-4 sm:grid-cols-3">
@@ -207,7 +207,7 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
               required
               value={form.city}
               onChange={(e) => updateField("city", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-top-border px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-top-text placeholder:text-top-muted"
             />
           </label>
           <label className="block text-sm">
@@ -217,7 +217,7 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
               maxLength={2}
               value={form.state}
               onChange={(e) => updateField("state", e.target.value.toUpperCase())}
-              className="mt-1 w-full rounded-lg border border-top-border px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-top-text placeholder:text-top-muted"
             />
           </label>
           <label className="block text-sm">
@@ -226,7 +226,7 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
               required
               value={form.zip}
               onChange={(e) => updateField("zip", e.target.value)}
-              className="mt-1 w-full rounded-lg border border-top-border px-3 py-2"
+              className="mt-1 w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-top-text placeholder:text-top-muted"
             />
           </label>
         </div>
@@ -234,14 +234,14 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
 
       {mode === "create" && (
         <fieldset className="space-y-4">
-          <legend className="text-sm font-medium text-top-navy">Lead details</legend>
+          <legend className="text-sm font-medium text-top-text">Lead details</legend>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block text-sm">
               <span className="text-top-muted">Lead source</span>
               <input
                 value={form.leadSource}
                 onChange={(e) => updateField("leadSource", e.target.value)}
-                className="mt-1 w-full rounded-lg border border-top-border px-3 py-2"
+                className="mt-1 w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-top-text placeholder:text-top-muted"
               />
             </label>
             <label className="block text-sm">
@@ -249,7 +249,7 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
               <select
                 value={form.jobType}
                 onChange={(e) => updateField("jobType", e.target.value as "insurance" | "retail")}
-                className="mt-1 w-full rounded-lg border border-top-border px-3 py-2"
+                className="mt-1 w-full rounded-lg border border-top-border bg-top-surface-raised px-3 py-2 text-top-text placeholder:text-top-muted"
               >
                 <option value="insurance">Insurance</option>
                 <option value="retail">Retail</option>
@@ -263,7 +263,7 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-lg bg-top-navy px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          className="rounded-lg bg-top-accent px-4 py-2 text-sm font-medium text-top-on-accent disabled:opacity-60"
         >
           {submitting ? "Saving…" : mode === "create" ? "Create lead" : "Save changes"}
         </button>
@@ -271,7 +271,7 @@ export function LeadForm({ mode, customerId, initial, onSuccess, onCancel }: Lea
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg border border-top-border px-4 py-2 text-sm text-slate-700"
+            className="rounded-lg border border-top-border px-4 py-2 text-sm text-top-text"
           >
             Cancel
           </button>
